@@ -2,7 +2,6 @@ package com.example.spotifysync;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -29,8 +26,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-//TODO: Add JavaDoc
-//TODO: Split out controller and application?
+/**
+ * This file runs the Spring Application and is also a routing controller
+ */
 @Controller
 @SpringBootApplication
 public class Application {
@@ -124,10 +122,13 @@ public class Application {
 
         // Get response body
         final String responseBody = spotifyAuthResponse.body().toString();
+        System.out.println(responseBody.toString());
         JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
-        
-        System.out.println("Access Token: " + responseJson.get("access_token"));
-        System.out.println("Refresh Token: " + responseJson.get("refresh_token"));
+        System.out.println(responseJson.toString());
+
+//
+//        System.out.println("Access Token: " + responseJson.get("access_token"));
+//        System.out.println("Refresh Token: " + responseJson.get("refresh_token"));
         model.addAttribute("name", "token: " + code);
       } catch (IOException | NullPointerException ignored) {
       }
