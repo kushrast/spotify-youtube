@@ -27,15 +27,20 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * This file runs the Spring Application and is also a routing controller
+ * This file runs the Spring Application and is also a Spring MVC Controler for the
+ * Spotify Youtube Application
  */
 @Controller
 @SpringBootApplication
 public class Application {
+  private static final String SPOTIFY_AUTH_CALLBACK = "/spotify_auth_callback";
+
   private final OkHttpClient httpClient = new OkHttpClient();
   private final Gson gson = new Gson();
 
-  //TODO: Add javadoc
+  /**
+   * Routes request to the index page. Currently a place holder.
+   */
   @GetMapping("/")
   public String home(
       @RequestParam(name = "name", required = false, defaultValue = "World") String name,
@@ -44,16 +49,19 @@ public class Application {
     return "index";
   }
 
-  //TODO: Add javadoc
-  @RequestMapping(value = "/authenticate", method = RequestMethod.GET)
+  /**
+   * Redirects a user to Spotify's web authentication page in order to get API access tokens
+   */
+  @RequestMapping(value = "/authenticate_spotify", method = RequestMethod.GET)
   public void authenticateWithSpotify(HttpServletResponse httpServletResponse) {
+    // Generate a random state string and save in a cookie for verification
     final String state = UUID.randomUUID().toString();
-    Cookie stateCookie = new Cookie("state", state);
+    final Cookie stateCookie = new Cookie("state", state);
     stateCookie.setPath("/");
     stateCookie.setSecure(true);
     stateCookie.setHttpOnly(true);
 
-    // your application requests authorization
+    // Request authorization for Spotify by redirecting user to spotify
     final String responseType = "code";
     final String scope = "user-read-currently-playing";
     final String clientId = getSpotifyClientId();
@@ -73,20 +81,25 @@ public class Application {
     httpServletResponse.setStatus(302);
   }
 
-  //TODO: Change spotify auth callback link
-  //TODO: Add javadoc
-  @RequestMapping(value = "/callback", method = RequestMethod.GET)
+  /**
+   * Endpoint called by Spotify after user completes authorization. Recieves an auth code from Spotify
+   * that can be exchanged for an access token and refresh token. Makes call to Spotify to fetch
+   * access token using auth code.
+   *
+   * TODO: Set cookie with access token/refresh token
+   */
+  @RequestMapping(value = SPOTIFY_AUTH_CALLBACK, method = RequestMethod.GET)
   public String spotifyAuthCallback(
-      @CookieValue(value = "state", defaultValue = "") String storedState,
-      @RequestParam(name = "code", required = false, defaultValue = "") String code,
-      @RequestParam(name = "state", required = true, defaultValue = "") String state,
-      @RequestParam(name = "error", required = false, defaultValue = "") String error,
-      Model model,
-      HttpServletResponse httpServletResponse
+      final @CookieValue(value = "state", defaultValue = "") String storedState,
+      final @RequestParam(name = "code", required = false, defaultValue = "") String code,
+      final @RequestParam(name = "state", required = true, defaultValue = "") String state,
+      final @RequestParam(name = "error", required = false, defaultValue = "") String error,
+      final Model model,
+      final HttpServletResponse httpServletResponse
   ) {
 
     //Removing state cookie
-    Cookie stateCookie = new Cookie("state", null);
+    final Cookie stateCookie = new Cookie("state", null);
     stateCookie.setMaxAge(0);
     stateCookie.setSecure(true);
     stateCookie.setHttpOnly(true);
@@ -122,7 +135,7 @@ public class Application {
 
         // Get response body
         final String responseBody = spotifyAuthResponse.body().toString();
-        System.out.println(responseBody.toString());
+        System.out.println("Response: " + responseBody);
         JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
         System.out.println(responseJson.toString());
 
@@ -156,11 +169,11 @@ public class Application {
   }
 
   private String getSpotifyRedirectUrl() {
-    return getServerUrl() + "callback";
+    return getServerUrl() + SPOTIFY_AUTH_CALLBACK;
   }
 
   private String getServerUrl() {
-    return "https://spotify-youtube.herokuapp.com/";
+    return "https://spotify-youtube.herokuapp.com";
   }
 
   public static void main(String[] args) {
