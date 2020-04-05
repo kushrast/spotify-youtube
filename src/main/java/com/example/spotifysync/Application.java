@@ -27,8 +27,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * This file runs the Spring Application and is also a Spring MVC Controler for the
- * Spotify Youtube Application
+ * This file runs the Spring Application and is also a Spring MVC Controler for the Spotify Youtube
+ * Application
  */
 @Controller
 @SpringBootApplication
@@ -82,9 +82,9 @@ public class Application {
   }
 
   /**
-   * Endpoint called by Spotify after user completes authorization. Recieves an auth code from Spotify
-   * that can be exchanged for an access token and refresh token. Makes call to Spotify to fetch
-   * access token using auth code.
+   * Endpoint called by Spotify after user completes authorization. Recieves an auth code from
+   * Spotify that can be exchanged for an access token and refresh token. Makes call to Spotify to
+   * fetch access token using auth code.
    *
    * TODO: Set cookie with access token/refresh token
    */
@@ -134,14 +134,11 @@ public class Application {
         }
 
         // Get response body
-        final String responseBody = spotifyAuthResponse.body().toString();
-        System.out.println("Response: " + responseBody);
-        JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
-        System.out.println(responseJson.toString());
+        JsonObject responseJson = new Gson().fromJson(
+            spotifyAuthResponse.body().string(), JsonObject.class);
 
-//
-//        System.out.println("Access Token: " + responseJson.get("access_token"));
-//        System.out.println("Refresh Token: " + responseJson.get("refresh_token"));
+        System.out.println("Access Token: " + responseJson.get("access_token"));
+        System.out.println("Refresh Token: " + responseJson.get("refresh_token"));
         model.addAttribute("name", "token: " + code);
       } catch (IOException | NullPointerException ignored) {
       }
