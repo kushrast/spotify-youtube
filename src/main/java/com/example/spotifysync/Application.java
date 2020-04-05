@@ -1,5 +1,8 @@
 package com.example.spotifysync;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -29,6 +34,7 @@ import okhttp3.Response;
 @SpringBootApplication
 public class Application {
   private final OkHttpClient httpClient = new OkHttpClient();
+  private final Gson gson = new Gson();
 
   //TODO: Add javadoc
   @GetMapping("/")
@@ -97,13 +103,13 @@ public class Application {
       final RequestBody formBody =
           new FormBody.Builder()
               .add("code", code)
-							.add("redirect_uri", getSpotifyRedirectUrl())
-							.add("grant_type", "authorization_code")
+              .add("redirect_uri", getSpotifyRedirectUrl())
+              .add("grant_type", "authorization_code")
               .build();
 
       Request request = new Request.Builder()
           .url("https://accounts.spotify.com/api/token")
-					.addHeader("Authorization", getSpotifyAuthHeader())
+          .addHeader("Authorization", getSpotifyAuthHeader())
           .post(formBody)
           .build();
 
@@ -111,14 +117,20 @@ public class Application {
       try {
         Response spotifyAuthResponse = httpClient.newCall(request).execute();
         if (!spotifyAuthResponse.isSuccessful()) {
-        	System.out.println("Error while trying to fetch authentication token from Spotify");
-					model.addAttribute("name", "error");
-				}
+          System.out.println("Error while trying to fetch authentication token from Spotify");
+          model.addAttribute("name", "error");
+        }
 
         // Get response body
-        System.out.println(spotifyAuthResponse.body().string());
+        final String responseBody = spotifyAuthResponse.body().toString();
+
+        final Map<String, String> responseDict = gson.fromJson(responseBody, new TypeToken<HashMap<String, String>>() {
+        }.getType());
+
+        System.out.println("Access Token: " + responseDict.get("access_token"));
+        System.out.println("Refresh Token: " + responseDict.get("refresh_token"));
         model.addAttribute("name", "token: " + code);
-      } catch (IOException ignored) {
+      } catch (IOException | NullPointerException ignored) {
       }
 
     } else {
@@ -132,20 +144,20 @@ public class Application {
     return System.getenv("SPOTIFY_CLIENT_ID");
   }
 
-	private String getSpotifyClientSecret() {
-		return System.getenv("SPOTIFY_CLIENT_SECRET");
-	}
+  private String getSpotifyClientSecret() {
+    return System.getenv("SPOTIFY_CLIENT_SECRET");
+  }
 
   private String getSpotifyAuthHeader() {
-		String clientCreds = String.format("%s:%s", getSpotifyClientId(), getSpotifyClientSecret());
-		String encodedCreds = Base64.getEncoder().encodeToString(clientCreds.getBytes());
+    String clientCreds = String.format("%s:%s", getSpotifyClientId(), getSpotifyClientSecret());
+    String encodedCreds = Base64.getEncoder().encodeToString(clientCreds.getBytes());
 
-		return "Basic " + encodedCreds;
-	}
+    return "Basic " + encodedCreds;
+  }
 
-	private String getSpotifyRedirectUrl() {
-		return getServerUrl() + "callback";
-	}
+  private String getSpotifyRedirectUrl() {
+    return getServerUrl() + "callback";
+  }
 
   private String getServerUrl() {
     return "https://spotify-youtube.herokuapp.com/";
