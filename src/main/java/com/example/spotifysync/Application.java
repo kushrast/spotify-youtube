@@ -49,7 +49,7 @@ public class Application {
 
 	@RequestMapping(value = "/callback", method = RequestMethod.GET)
 	public String callback(Model model) {
-  	model.addAttribute("authenticated");
+  	model.addAttribute("name", "authenticated");
 		return "index";
 	}
 
