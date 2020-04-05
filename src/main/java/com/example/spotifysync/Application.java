@@ -1,6 +1,7 @@
 package com.example.spotifysync;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import org.springframework.boot.SpringApplication;
@@ -123,12 +124,10 @@ public class Application {
 
         // Get response body
         final String responseBody = spotifyAuthResponse.body().toString();
-
-        final Map<String, String> responseDict = gson.fromJson(responseBody, new TypeToken<HashMap<String, String>>() {
-        }.getType());
-
-        System.out.println("Access Token: " + responseDict.get("access_token"));
-        System.out.println("Refresh Token: " + responseDict.get("refresh_token"));
+        JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
+        
+        System.out.println("Access Token: " + responseJson.get("access_token"));
+        System.out.println("Refresh Token: " + responseJson.get("refresh_token"));
         model.addAttribute("name", "token: " + code);
       } catch (IOException | NullPointerException ignored) {
       }
