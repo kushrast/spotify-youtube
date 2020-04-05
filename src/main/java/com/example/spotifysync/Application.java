@@ -48,8 +48,18 @@ public class Application {
   }
 
 	@RequestMapping(value = "/callback", method = RequestMethod.GET)
-	public String callback(Model model) {
-  	model.addAttribute("name", "authenticated");
+	public String callback(
+			@RequestParam(name = "code", required = false, defaultValue = "") String code,
+			@RequestParam(name = "state", required = true, defaultValue = "") String state,
+			@RequestParam(name = "error", required = false, defaultValue = "") String error,
+			Model model) {
+  	if (!code.equals(""))  {
+  		System.out.println("Authorization successful. Auth Token: " + code);
+			model.addAttribute("name", "token: " + code);
+		} else {
+  		System.out.println("Authorization failed. Error messge: " + error);
+			model.addAttribute("name", "failure: " + error);
+		}
 		return "index";
 	}
 
