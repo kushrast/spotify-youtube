@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 @SpringBootApplication
 public class Application {
-  final String SPOTIFY_CLIENT_ID_VAR_KEY = "SPOTIFY_CLIENT_ID";
+  private final String SPOTIFY_CLIENT_ID_VAR_KEY = "SPOTIFY_CLIENT_ID";
 
   @GetMapping("/")
   public String home(
