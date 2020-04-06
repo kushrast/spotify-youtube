@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -42,10 +43,7 @@ public class Application {
    * Routes request to the index page. Currently a place holder.
    */
   @GetMapping("/")
-  public String home(
-      @RequestParam(name = "name", required = false, defaultValue = "World") String name,
-      Model model) {
-    model.addAttribute("name", name);
+  public String home() {
     return "index";
   }
 
@@ -56,10 +54,7 @@ public class Application {
   public void authenticateWithSpotify(HttpServletResponse httpServletResponse) {
     // Generate a random state string and save in a cookie for verification
     final String state = UUID.randomUUID().toString();
-    final Cookie stateCookie = new Cookie("state", state);
-    stateCookie.setPath("/");
-    stateCookie.setSecure(true);
-    stateCookie.setHttpOnly(true);
+    setCookie("state", state, httpServletResponse);
 
     // Request authorization for Spotify by redirecting user to spotify
     final String responseType = "code";
@@ -76,7 +71,6 @@ public class Application {
             state
         );
 
-    httpServletResponse.addCookie(stateCookie);
     httpServletResponse.setHeader("Location", spotifyAuthLink);
     httpServletResponse.setStatus(302);
   }
@@ -84,9 +78,7 @@ public class Application {
   /**
    * Endpoint called by Spotify after user completes authorization. Recieves an auth code from
    * Spotify that can be exchanged for an access token and refresh token. Makes call to Spotify to
-   * fetch access token using auth code.
-   *
-   * TODO: Set cookie with access token/refresh token
+   * fetch access token using auth code. Sets cookies with access and refresh tokens.
    */
   @RequestMapping(value = SPOTIFY_AUTH_CALLBACK, method = RequestMethod.GET)
   public String spotifyAuthCallback(
@@ -99,55 +91,84 @@ public class Application {
   ) {
 
     //Removing state cookie
-    final Cookie stateCookie = new Cookie("state", null);
+    clearCookie("state", httpServletResponse);
+
+    if (!storedState.equals(state)) {
+      System.out.println("Stored state does not match state returned from Spotify");
+      model.addAttribute("error", "Spotify Authorization failed. Please try again :(");
+    } else if (!code.equals("")) {
+      getAccessTokenFromAuthCode(code, model, httpServletResponse);
+    } else {
+      System.out.println("Authorization failed. Error message: " + error);
+      model.addAttribute("error", "" + error);
+    }
+    return "index";
+  }
+
+  /**
+   * Makes call to Spotify to fetch access token using auth code. Sets cookies with access and
+   * refresh tokens.
+   */
+  private void getAccessTokenFromAuthCode(final String code, final Model model,
+      final HttpServletResponse httpServletResponse) {
+
+    final RequestBody formBody =
+        new FormBody.Builder()
+            .add("code", code)
+            .add("redirect_uri", getSpotifyRedirectUrl())
+            .add("grant_type", "authorization_code")
+            .build();
+
+    Request request = new Request.Builder()
+        .url("https://accounts.spotify.com/api/token")
+        .addHeader("Authorization", getSpotifyAuthHeader())
+        .post(formBody)
+        .build();
+
+
+    try {
+      Response spotifyAuthResponse = httpClient.newCall(request).execute();
+      if (!spotifyAuthResponse.isSuccessful()) {
+        System.out.println("Error while trying to fetch authentication token from Spotify");
+        model.addAttribute("error", "Could not connect to Spotify properly");
+      }
+
+      // Get response body
+      JsonObject responseJson = new Gson().fromJson(
+          spotifyAuthResponse.body().string(), JsonObject.class);
+
+      System.out.println("Access Token: " + responseJson.get("access_token"));
+      System.out.println("Refresh Token: " + responseJson.get("refresh_token"));
+
+      // Set cookies with values
+      setCookie("access_token", responseJson.get("access_token")
+          .getAsString(), httpServletResponse);
+      setCookie("refresh_token", responseJson.get("refresh_token")
+          .getAsString(), httpServletResponse);
+    } catch (IOException | NullPointerException e) {
+      System.out.println("Encountered error while fetching access_token from Spotify. Error: " + e
+          .getMessage());
+      System.out.println(Arrays.toString(e.getStackTrace()));
+      model.addAttribute("error", "Encountered error while authenticating to Spotify, please try again");
+    }
+  }
+
+  private void setCookie(final String key, final String value, final HttpServletResponse response) {
+    final Cookie stateCookie = new Cookie(key, value);
+    stateCookie.setPath("/");
+    stateCookie.setSecure(true);
+    stateCookie.setHttpOnly(true);
+    response.addCookie(stateCookie);
+  }
+
+  private void clearCookie(final String key, final HttpServletResponse response) {
+    final Cookie stateCookie = new Cookie(key, null);
     stateCookie.setMaxAge(0);
     stateCookie.setSecure(true);
     stateCookie.setHttpOnly(true);
     stateCookie.setPath("/");
     //add cookie to response
-    httpServletResponse.addCookie(stateCookie);
-
-    if (!storedState.equals(state)) {
-      System.out.println("Stored state does not match state returned from Spotify");
-      System.out.println("Authorization failed. States do not match.");
-    } else if (!code.equals("")) {
-
-      final RequestBody formBody =
-          new FormBody.Builder()
-              .add("code", code)
-              .add("redirect_uri", getSpotifyRedirectUrl())
-              .add("grant_type", "authorization_code")
-              .build();
-
-      Request request = new Request.Builder()
-          .url("https://accounts.spotify.com/api/token")
-          .addHeader("Authorization", getSpotifyAuthHeader())
-          .post(formBody)
-          .build();
-
-
-      try {
-        Response spotifyAuthResponse = httpClient.newCall(request).execute();
-        if (!spotifyAuthResponse.isSuccessful()) {
-          System.out.println("Error while trying to fetch authentication token from Spotify");
-          model.addAttribute("name", "error");
-        }
-
-        // Get response body
-        JsonObject responseJson = new Gson().fromJson(
-            spotifyAuthResponse.body().string(), JsonObject.class);
-
-        System.out.println("Access Token: " + responseJson.get("access_token"));
-        System.out.println("Refresh Token: " + responseJson.get("refresh_token"));
-        model.addAttribute("name", "token: " + code);
-      } catch (IOException | NullPointerException ignored) {
-      }
-
-    } else {
-      System.out.println("Authorization failed. Error messge: " + error);
-      model.addAttribute("name", "failure: " + error);
-    }
-    return "index";
+    response.addCookie(stateCookie);
   }
 
   private String getSpotifyClientId() {
