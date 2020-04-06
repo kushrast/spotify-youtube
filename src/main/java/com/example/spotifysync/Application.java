@@ -163,10 +163,11 @@ public class Application {
       return new ModelAndView("redirect:/error", "error", "Error while retrieving Current Track from Spotify");
     } else if (currentPlaying.isEmpty()) {
       return new ModelAndView("sync", "data", "No tracks playing");
-    } else {
-      return new ModelAndView("sync", "data", currentPlaying.toString());
     }
+
     //Check YouTube
+    final String youTubeLink = getYouTubeLinkFromSpotifyTrack(currentPlaying);
+    return new ModelAndView("sync", "data", youTubeLink);
     //Return results
   }
 
@@ -238,6 +239,30 @@ public class Application {
       System.out.println(Arrays.toString(e.getStackTrace()));
     }
     return null;
+  }
+
+  private String getYouTubeLinkFromSpotifyTrack(SpotifyCurrentPlaying currentPlaying) {
+    final String youtubeApiUrl =
+        String.format("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=%s&key=%s",
+            currentPlaying.getYouTubeSearchParams(), getYouTubeApiKey());
+
+    final Request youTubeGetApplicableVideosRequest = new Request.Builder()
+        .url(youtubeApiUrl)
+        .build();
+
+    try {
+      Response youTubeApplicableVideosResponse = httpClient.newCall(youTubeGetApplicableVideosRequest)
+          .execute();
+      if (!youTubeApplicableVideosResponse.isSuccessful()) {
+        System.out.println("Error while trying to get videos from YouTube. Response not successful. Message: " + youTubeApplicableVideosResponse
+            .body());
+        return null;
+      } else {
+        final String responseBody = youTubeApplicableVideosResponse.body().string();
+        return responseBody;
+      }
+    } catch (IOException ignored){}
+    return "";
   }
 
   /**
@@ -371,6 +396,11 @@ public class Application {
     cookie.setPath("/");
     //add cookie to response
     response.addCookie(cookie);
+  }
+
+
+  private String getYouTubeApiKey() {
+    return System.getenv("YOUTUBE_API_KEY");
   }
 
   private String getSpotifyClientId() {

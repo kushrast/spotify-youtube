@@ -52,6 +52,10 @@ public class SpotifyCurrentPlaying {
     return isEmpty;
   }
 
+  public String getYouTubeSearchParams() {
+
+  }
+
   @Override public String toString() {
     return "SpotifyCurrentPlaying{" +
         "durationMs=" + durationMs +
