@@ -294,6 +294,7 @@ public class Application {
             .getAsString());
 
         if (similarity > bestFit) {
+          bestFit = similarity;
           bestYouTubeLink = videoResult.get("id").getAsJsonObject().get("videoId").getAsString();
           System.out.println(similarity + " " + bestFit + " " + bestYouTubeLink);
         }
