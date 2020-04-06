@@ -55,6 +55,14 @@ public class Application {
   public String index() {
     return "index";
   }
+  
+  /**
+   * Error routing
+   */
+  @GetMapping("/error")
+  public String error() {
+    return "error";
+  }
 
   /**
    * Redirects a user to Spotify's web authentication page in order to get API access tokens
@@ -122,7 +130,7 @@ public class Application {
       System.out.println("Authorization failed. Error message: " + error);
       addStandardSpotifyAuthErrorToModel(model);
     }
-    return new ModelAndView("redirect:/", "error", model.getAttribute("error"));
+    return new ModelAndView("redirect:/error", "error", model.getAttribute("error"));
   }
 
   /**
@@ -131,7 +139,7 @@ public class Application {
   //TODO: Pull access token from refresh token if necessary
   //TODO: Get usage on refresh token
   @RequestMapping(value = "/sync", method = RequestMethod.GET)
-  public String sync(
+  public ModelAndView sync(
       final @CookieValue(value = "access_token", defaultValue = "") String accessToken,
       final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
       final Model model,
@@ -157,11 +165,12 @@ public class Application {
       final JsonObject track_object = responseJson.get("item").getAsJsonObject();
       if (track_object != null) {
 
-        final int duration_ms = track_object.get("duration_ms").getAsInt();
-        final int progress_ms = responseJson.get("progress_ms").getAsInt();
-        final String track_name = track_object.get("name").getAsString();
+        final boolean isPlaying = responseJson.get("is_playing").getAsBoolean();
+        final int durationMs = track_object.get("duration_ms").getAsInt();
+        final int progressMs = responseJson.get("progress_ms").getAsInt();
+        final String trackName = track_object.get("name").getAsString();
 
-        return String.format("Playing %s, %d: of %d", track_name, progress_ms, duration_ms);
+        return new ModelAndView("sync", "data", String.format("Current: %s, %d: of %d. Is Playing?: %b", trackName, progressMs, durationMs, isPlaying));
       }
     } catch (IOException | NullPointerException e) {
       System.out.println("Encountered error while fetching currently playing track from Spotify. Error: " + e
@@ -169,7 +178,7 @@ public class Application {
       System.out.println(Arrays.toString(e.getStackTrace()));
       addStandardSpotifyAuthErrorToModel(model);
     }
-    return "Error";
+    return new ModelAndView("redirect:/error", "error", model.getAttribute("error"));
   }
 
   /**
