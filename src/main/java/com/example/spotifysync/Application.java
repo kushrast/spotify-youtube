@@ -1,7 +1,10 @@
 package com.example.spotifysync;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
+import com.example.spotifysync.schema.SpotifyCurrentPlaying;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -144,29 +147,56 @@ public class Application {
       final HttpServletResponse httpServletResponse
   ) {
 
+    //Check Access Token
+    accessToken = verifyAccessToken(accessToken, refreshToken, httpServletResponse, model);
+    if (accessToken == null) {
+      //error
+      return new ModelAndView("redirect:/error", "error", "Error while getting authorization from Spotify");
+    }
+
+    //Ask Spotify for Current Playing
+    final SpotifyCurrentPlaying currentPlaying = getCurrentPlayingFromSpotify(accessToken);
+
+    if (currentPlaying == null) {
+      return new ModelAndView("redirect:/error", "error", "Error while retrieving Current Track from Spotify");
+    } else if (currentPlaying.isEmpty()) {
+      return new ModelAndView("sync", "data", "No tracks playing");
+    } else {
+      return new ModelAndView("sync", "data", currentPlaying.toString());
+    }
+    //Check YouTube
+    //Return results
+  }
+
+  private String verifyAccessToken(String accessToken, String refreshToken,
+      HttpServletResponse httpServletResponse, Model model) {
     if (refreshToken.equals("")) {
       //TODO: Tell user their authentication has expired
+      return null;
     } else if (accessToken.equals("")) {
       System.out.println("Empty Access Token");
-      accessToken = getAccessTokenFromRefreshToken(refreshToken, model, httpServletResponse);
+      return getAccessTokenFromRefreshToken(refreshToken, model, httpServletResponse);
     }
-    Request currentlyPlayingRequest = new Request.Builder()
+    return accessToken;
+  }
+
+  private SpotifyCurrentPlaying getCurrentPlayingFromSpotify(final String accessToken) {
+    final Request spotifyCurrentPlayingRequest = new Request.Builder()
         .url("https://api.spotify.com/v1/me/player/currently-playing")
         .addHeader("Authorization", "Bearer " + accessToken)
         .build();
-
     try {
-      Response spotifyResponse = httpClient.newCall(currentlyPlayingRequest).execute();
-      if (!spotifyResponse.isSuccessful()) {
-        System.out.println("Error while trying to fetch currently playing track from Spotify. Response not successful. Message: " + spotifyResponse
+      Response spotifyCurrentPlayingResponse = httpClient.newCall(spotifyCurrentPlayingRequest)
+          .execute();
+      if (!spotifyCurrentPlayingResponse.isSuccessful()) {
+        System.out.println("Error while trying to fetch currently playing track from Spotify. Response not successful. Message: " + spotifyCurrentPlayingResponse
             .body());
-        addStandardSpotifyAuthErrorToModel(model);
+        return null;
       } else {
-        final String responseBody = spotifyResponse.body().string();
-        // Get response body
-        JsonObject responseJson = new Gson().fromJson(responseBody
-            , JsonObject.class);
+        final String responseBody = spotifyCurrentPlayingResponse.body().string();
         System.out.println(responseBody);
+        // Get response body
+        JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
 
         try {
           final JsonObject track_object = responseJson.get("item").getAsJsonObject();
@@ -177,9 +207,9 @@ public class Application {
             final int progressMs = responseJson.get("progress_ms").getAsInt();
             final String trackName = track_object.get("name").getAsString();
 
-            return new ModelAndView("sync", "data", String.format("Current: %s, %d: of %d. Is Playing?: %b", trackName, progressMs, durationMs, isPlaying));
+            return new SpotifyCurrentPlaying(durationMs, progressMs, trackName, ImmutableList.of(), isPlaying);
           } else {
-            return new ModelAndView("sync", "data", "Nothing playing.");
+            return new SpotifyCurrentPlaying();
           }
         } catch (Exception e) {
           System.out.println("Encountered error while parsing Spotify response. error: " + e.getMessage());
@@ -189,9 +219,8 @@ public class Application {
       System.out.println("Encountered error while fetching currently playing track from Spotify. Error: " + e
           .getMessage());
       System.out.println(Arrays.toString(e.getStackTrace()));
-      addStandardSpotifyAuthErrorToModel(model);
     }
-    return new ModelAndView("redirect:/error", "error", model.getAttribute("error"));
+    return null;
   }
 
   /**
