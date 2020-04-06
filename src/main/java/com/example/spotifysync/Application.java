@@ -103,7 +103,7 @@ public class Application {
       System.out.println("Authorization failed. Error message: " + error);
       addStandardSpotifyAuthErrorToModel(model);
     }
-    return new ModelAndView("redirect:/index");
+    return new ModelAndView("redirect:/index", "error", model.getAttribute("error"));
   }
 
   /**
