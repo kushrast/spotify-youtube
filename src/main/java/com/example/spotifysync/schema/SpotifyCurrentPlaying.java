@@ -1,6 +1,7 @@
 package com.example.spotifysync.schema;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Entity class holding data about the track currently playing in Spotify
@@ -53,7 +54,14 @@ public class SpotifyCurrentPlaying {
   }
 
   public String getYouTubeSearchParams() {
+    StringJoiner searchString = new StringJoiner(" ");
+    searchString.add(trackName);
 
+    for (String artist: artists) {
+      searchString.add(artist);
+    }
+
+    return searchString.toString();
   }
 
   @Override public String toString() {
