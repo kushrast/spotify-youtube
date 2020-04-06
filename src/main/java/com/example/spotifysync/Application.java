@@ -259,10 +259,41 @@ public class Application {
         return null;
       } else {
         final String responseBody = youTubeApplicableVideosResponse.body().string();
-        return responseBody;
+        JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
+
+        return getBestYouTubeVideoFromResponse(currentPlaying, responseJson);
       }
-    } catch (IOException ignored){}
+    } catch (IOException ignored) {
+    }
     return "";
+  }
+
+  private String getBestYouTubeVideoFromResponse(final SpotifyCurrentPlaying currentPlaying,
+      final JsonObject youTubeResponse) {
+    String bestYouTubeLink = "";
+    int bestFit = 0;
+
+    if (youTubeResponse.has("items")) {
+      final JsonArray videoResults = youTubeResponse.getAsJsonArray("items");
+      for (int i = 0; i < videoResults.size(); i++) {
+        final JsonObject videoResult = videoResults.get(i)
+            .getAsJsonObject();
+
+        final JsonObject snippet = videoResult
+            .get("snippet")
+            .getAsJsonObject();
+
+        final String videoTitle = snippet.get("title").getAsString();
+        final String channelTitle = snippet.get("channelTitle").getAsString();
+
+        int similarity = currentPlaying.compareSpotifyTrackToYouTubeVideo(videoTitle, channelTitle);
+
+        if (similarity > bestFit) {
+          bestYouTubeLink = videoResult.get("id").getAsJsonObject().get("videoId").getAsString();
+        }
+      }
+    }
+    return bestYouTubeLink;
   }
 
   /**

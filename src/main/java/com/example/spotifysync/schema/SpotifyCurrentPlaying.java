@@ -64,6 +64,10 @@ public class SpotifyCurrentPlaying {
     return searchString.toString();
   }
 
+  public int compareSpotifyTrackToYouTubeVideo(String youTubeTitle, String youTubeAuthor) {
+    return 100;
+  }
+
   @Override public String toString() {
     return "SpotifyCurrentPlaying{" +
         "durationMs=" + durationMs +
