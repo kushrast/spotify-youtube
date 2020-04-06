@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -81,7 +82,7 @@ public class Application {
    * fetch access token using auth code. Sets cookies with access and refresh tokens.
    */
   @RequestMapping(value = SPOTIFY_AUTH_CALLBACK, method = RequestMethod.GET)
-  public String spotifyAuthCallback(
+  public ModelAndView spotifyAuthCallback(
       final @CookieValue(value = "state", defaultValue = "") String storedState,
       final @RequestParam(name = "code", required = false, defaultValue = "") String code,
       final @RequestParam(name = "state", required = true, defaultValue = "") String state,
@@ -95,14 +96,14 @@ public class Application {
 
     if (!storedState.equals(state)) {
       System.out.println("Stored state does not match state returned from Spotify");
-      model.addAttribute("error", "Spotify Authorization failed. Please try again :(");
+      addStandardSpotifyAuthErrorToModel(model);
     } else if (!code.equals("")) {
       getAccessTokenFromAuthCode(code, model, httpServletResponse);
     } else {
       System.out.println("Authorization failed. Error message: " + error);
-      model.addAttribute("error", "" + error);
+      addStandardSpotifyAuthErrorToModel(model);
     }
-    return "index";
+    return new ModelAndView("redirect:/index");
   }
 
   /**
@@ -129,8 +130,8 @@ public class Application {
     try {
       Response spotifyAuthResponse = httpClient.newCall(request).execute();
       if (!spotifyAuthResponse.isSuccessful()) {
-        System.out.println("Error while trying to fetch authentication token from Spotify");
-        model.addAttribute("error", "Could not connect to Spotify properly");
+        System.out.println("Error while trying to fetch authentication token from Spotify. Response not successful.");
+        addStandardSpotifyAuthErrorToModel(model);
       }
 
       // Get response body
@@ -149,8 +150,12 @@ public class Application {
       System.out.println("Encountered error while fetching access_token from Spotify. Error: " + e
           .getMessage());
       System.out.println(Arrays.toString(e.getStackTrace()));
-      model.addAttribute("error", "Encountered error while authenticating to Spotify, please try again");
+      addStandardSpotifyAuthErrorToModel(model);
     }
+  }
+
+  private void addStandardSpotifyAuthErrorToModel(final Model model) {
+    model.addAttribute("error", "Encountered error while authenticating to Spotify, please try again");
   }
 
   private void setCookie(final String key, final String value, final HttpServletResponse response) {
