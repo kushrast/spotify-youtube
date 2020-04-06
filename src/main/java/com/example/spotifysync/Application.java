@@ -86,6 +86,7 @@ public class Application {
       httpServletResponse.setStatus(302);
     } else {
       try {
+        System.out.println("Found existing cookie. No need to request from Spotify");
         httpServletResponse.sendRedirect("/");
       } catch (IOException e) {
         System.out.println("Ran into IO Exception while redirecting authenticated user to mainpage.");
