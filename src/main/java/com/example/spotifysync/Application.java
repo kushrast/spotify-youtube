@@ -147,6 +147,7 @@ public class Application {
     if (refreshToken.equals("")) {
       //TODO: Tell user their authentication has expired
     } else if (accessToken.equals("")) {
+      System.out.println("Empty Access Token");
       accessToken = getAccessTokenFromRefreshToken(refreshToken, model, httpServletResponse);
     }
     Request currentlyPlayingRequest = new Request.Builder()
