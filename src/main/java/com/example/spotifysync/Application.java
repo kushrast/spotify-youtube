@@ -99,6 +99,7 @@ public class Application {
    * Spotify that can be exchanged for an access token and refresh token. Makes call to Spotify to
    * fetch access token using auth code. Sets cookies with access and refresh tokens.
    */
+  //TODO: Make access token cookie expire
   @RequestMapping(value = SPOTIFY_AUTH_CALLBACK, method = RequestMethod.GET)
   public ModelAndView spotifyAuthCallback(
       final @CookieValue(value = "state", defaultValue = "") String storedState,
@@ -127,8 +128,10 @@ public class Application {
   /**
    * Endpoint that calls Spotify to get playback information for the authenticated user
    */
+  //TODO: Pull access token from refresh token if necessary
+  //TODO: Get usage on refresh token
   @RequestMapping(value = "/sync", method = RequestMethod.GET)
-  public void sync(
+  public String sync(
       final @CookieValue(value = "access_token", defaultValue = "") String accessToken,
       final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
       final Model model,
@@ -151,13 +154,22 @@ public class Application {
       JsonObject responseJson = new Gson().fromJson(
           spotifyResponse.body().string(), JsonObject.class);
 
-      System.out.println(responseJson.toString());
+      final JsonObject track_object = responseJson.get("item").getAsJsonObject();
+      if (track_object != null) {
+
+        final int duration_ms = track_object.get("duration_ms").getAsInt();
+        final int progress_ms = responseJson.get("progress_ms").getAsInt();
+        final String track_name = track_object.get("name").getAsString();
+
+        return String.format("Playing %s, %d: of %d", track_name, progress_ms, duration_ms);
+      }
     } catch (IOException | NullPointerException e) {
       System.out.println("Encountered error while fetching currently playing track from Spotify. Error: " + e
           .getMessage());
       System.out.println(Arrays.toString(e.getStackTrace()));
       addStandardSpotifyAuthErrorToModel(model);
     }
+    return "Error";
   }
 
   /**
