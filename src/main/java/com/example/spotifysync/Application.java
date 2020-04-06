@@ -173,7 +173,7 @@ public class Application {
     models.put("youTube", youTubeLink);
     models.put("progress", currentPlaying.getProgressMs() / 1000);
     models.put("isPlaying", currentPlaying.isPlaying());
-    return new ModelAndView("sync", "youTubeLink", youTubeLink);
+    return new ModelAndView("sync", models);
     //Return results
   }
 
