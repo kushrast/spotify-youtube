@@ -160,28 +160,28 @@ public class Application {
         System.out.println("Error while trying to fetch currently playing track from Spotify. Response not successful. Message: " + spotifyResponse
             .body());
         addStandardSpotifyAuthErrorToModel(model);
-      }
+      } else {
+        // Get response body
+        JsonObject responseJson = new Gson().fromJson(
+            spotifyResponse.body().string(), JsonObject.class);
+        System.out.println(spotifyResponse.body().string());
 
-      // Get response body
-      JsonObject responseJson = new Gson().fromJson(
-          spotifyResponse.body().string(), JsonObject.class);
-      System.out.println(responseJson.toString());
+        final JsonObject track_object = responseJson.get("item").getAsJsonObject();
+        try {
+          if (track_object != null) {
 
-      final JsonObject track_object = responseJson.get("item").getAsJsonObject();
-      try {
-        if (track_object != null) {
+            final boolean isPlaying = responseJson.get("is_playing").getAsBoolean();
+            final int durationMs = track_object.get("duration_ms").getAsInt();
+            final int progressMs = responseJson.get("progress_ms").getAsInt();
+            final String trackName = track_object.get("name").getAsString();
 
-          final boolean isPlaying = responseJson.get("is_playing").getAsBoolean();
-          final int durationMs = track_object.get("duration_ms").getAsInt();
-          final int progressMs = responseJson.get("progress_ms").getAsInt();
-          final String trackName = track_object.get("name").getAsString();
-
-          return new ModelAndView("sync", "data", String.format("Current: %s, %d: of %d. Is Playing?: %b", trackName, progressMs, durationMs, isPlaying));
-        } else {
-          return new ModelAndView("sync", "data", "Nothing playing.");
+            return new ModelAndView("sync", "data", String.format("Current: %s, %d: of %d. Is Playing?: %b", trackName, progressMs, durationMs, isPlaying));
+          } else {
+            return new ModelAndView("sync", "data", "Nothing playing.");
+          }
+        } catch (Exception e) {
+          System.out.println("Encountered error while parsing Spotify response. error: " + e.getMessage());
         }
-      } catch (Exception e) {
-        System.out.println("Encountered error while parsing Spotify response. error: " + e.getMessage());
       }
     } catch (IOException | NullPointerException e) {
       System.out.println("Encountered error while fetching currently playing track from Spotify. Error: " + e
