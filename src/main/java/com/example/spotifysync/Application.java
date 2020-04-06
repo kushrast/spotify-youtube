@@ -171,7 +171,7 @@ public class Application {
     final String youTubeLink = getYouTubeLinkFromSpotifyTrack(currentPlaying);
     Map<String, Object> models = new HashMap<String, Object>();
     models.put("youTube", youTubeLink);
-    models.put("progress", currentPlaying.getProgressMs() / 1000 + 1.5);
+    models.put("progress", currentPlaying.getProgressMs() / 1000 + 1);
     models.put("isPlaying", currentPlaying.isPlaying());
     return new ModelAndView("sync", models);
     //Return results
