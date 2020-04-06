@@ -172,6 +172,7 @@ public class Application {
     Map<String, Object> models = new HashMap<String, Object>();
     models.put("youTube", youTubeLink);
     models.put("progress", currentPlaying.getProgressMs() / 1000);
+    models.put("isPlaying", currentPlaying.isPlaying());
     return new ModelAndView("sync", "youTubeLink", youTubeLink);
     //Return results
   }
