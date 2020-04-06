@@ -162,10 +162,11 @@ public class Application {
             .body());
         addStandardSpotifyAuthErrorToModel(model);
       } else {
+        final String responseBody = spotifyResponse.body().string();
         // Get response body
-        JsonObject responseJson = new Gson().fromJson(
-            spotifyResponse.body().string(), JsonObject.class);
-        System.out.println(spotifyResponse.body().string());
+        JsonObject responseJson = new Gson().fromJson(responseBody
+            , JsonObject.class);
+        System.out.println(responseBody);
 
         final JsonObject track_object = responseJson.get("item").getAsJsonObject();
         try {
