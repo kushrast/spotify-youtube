@@ -187,7 +187,7 @@ public class Application {
   private void setCookie(final String key, final String value, final HttpServletResponse response) {
     final Cookie cookie = new Cookie(key, value);
     cookie.setPath("/");
-    cookie.setHttpOnly(true);
+    cookie.setSecure(true);
     response.addCookie(cookie);
   }
 
