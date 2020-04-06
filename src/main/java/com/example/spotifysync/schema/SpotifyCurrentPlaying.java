@@ -9,17 +9,17 @@ public class SpotifyCurrentPlaying {
   private int durationMs;
   private int progressMs;
   private String trackName;
-  private List<String> authors;
+  private List<String> artists;
   private boolean isPlaying;
 
   private boolean isEmpty;
 
   public SpotifyCurrentPlaying(int durationMs, int progressMs, String trackName,
-      List<String> authors, boolean isPlaying) {
+      List<String> artists, boolean isPlaying) {
     this.durationMs = durationMs;
     this.progressMs = progressMs;
     this.trackName = trackName;
-    this.authors = authors;
+    this.artists = artists;
     this.isPlaying = isPlaying;
     this.isEmpty = false;
   }
@@ -40,8 +40,8 @@ public class SpotifyCurrentPlaying {
     return trackName;
   }
 
-  public List<String> getAuthors() {
-    return authors;
+  public List<String> getArtists() {
+    return artists;
   }
 
   public boolean isPlaying() {
@@ -50,5 +50,16 @@ public class SpotifyCurrentPlaying {
 
   public boolean isEmpty() {
     return isEmpty;
+  }
+
+  @Override public String toString() {
+    return "SpotifyCurrentPlaying{" +
+        "durationMs=" + durationMs +
+        ", progressMs=" + progressMs +
+        ", trackName='" + trackName + '\'' +
+        ", artists=" + artists +
+        ", isPlaying=" + isPlaying +
+        ", isEmpty=" + isEmpty +
+        '}';
   }
 }

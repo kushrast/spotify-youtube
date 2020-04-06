@@ -2,6 +2,8 @@ package com.example.spotifysync;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.example.spotifysync.schema.SpotifyCurrentPlaying;
@@ -18,13 +20,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import javafx.scene.effect.Light.Spot;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -198,6 +203,9 @@ public class Application {
         // Get response body
         JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
 
+        if (responseBody.isEmpty()) {
+          return new SpotifyCurrentPlaying();
+        }
         try {
           final JsonObject track_object = responseJson.get("item").getAsJsonObject();
           if (track_object != null) {
@@ -207,7 +215,19 @@ public class Application {
             final int progressMs = responseJson.get("progress_ms").getAsInt();
             final String trackName = track_object.get("name").getAsString();
 
-            return new SpotifyCurrentPlaying(durationMs, progressMs, trackName, ImmutableList.of(), isPlaying);
+            final List<String> artists = new ArrayList<>();
+            if (track_object.has("artists")) {
+              final JsonArray artistArray = track_object.getAsJsonArray("artists");
+              for (int i = 0; i < artistArray.size(); i++) {
+                final String artistName = artistArray.get(i)
+                    .getAsJsonObject()
+                    .get("name")
+                    .getAsString();
+                artists.add(artistName);
+              }
+            }
+
+            return new SpotifyCurrentPlaying(durationMs, progressMs, trackName, artists, isPlaying);
           } else {
             return new SpotifyCurrentPlaying();
           }
