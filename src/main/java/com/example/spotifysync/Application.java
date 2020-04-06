@@ -1,9 +1,7 @@
 package com.example.spotifysync;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.example.spotifysync.schema.SpotifyCurrentPlaying;
@@ -29,7 +27,6 @@ import java.util.UUID;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import javafx.scene.effect.Light.Spot;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
