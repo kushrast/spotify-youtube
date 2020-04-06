@@ -125,6 +125,42 @@ public class Application {
   }
 
   /**
+   * Endpoint that calls Spotify to get playback information for the authenticated user
+   */
+  @RequestMapping(value = "/sync", method = RequestMethod.GET)
+  public void sync(
+      final @CookieValue(value = "access_token", defaultValue = "") String accessToken,
+      final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
+      final Model model,
+      final HttpServletResponse httpServletResponse
+  ) {
+
+    Request currentlyPlayingRequest = new Request.Builder()
+        .url("https://api.spotify.com/v1/me/player/currently-playing")
+        .addHeader("Authorization", "Bearer " + accessToken)
+        .build();
+
+    try {
+      Response spotifyResponse = httpClient.newCall(currentlyPlayingRequest).execute();
+      if (!spotifyResponse.isSuccessful()) {
+        System.out.println("Error while trying to fetch currently playing track from Spotify. Response not successful.");
+        addStandardSpotifyAuthErrorToModel(model);
+      }
+
+      // Get response body
+      JsonObject responseJson = new Gson().fromJson(
+          spotifyResponse.body().string(), JsonObject.class);
+
+      System.out.println(responseJson.toString());
+    } catch (IOException | NullPointerException e) {
+      System.out.println("Encountered error while fetching currently playing track from Spotify. Error: " + e
+          .getMessage());
+      System.out.println(Arrays.toString(e.getStackTrace()));
+      addStandardSpotifyAuthErrorToModel(model);
+    }
+  }
+
+  /**
    * Makes call to Spotify to fetch access token using auth code. Sets cookies with access and
    * refresh tokens.
    */
