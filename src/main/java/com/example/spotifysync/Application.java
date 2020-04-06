@@ -55,7 +55,7 @@ public class Application {
   public String index() {
     return "index";
   }
-  
+
   /**
    * Error routing
    */
@@ -161,6 +161,7 @@ public class Application {
       // Get response body
       JsonObject responseJson = new Gson().fromJson(
           spotifyResponse.body().string(), JsonObject.class);
+      System.out.println(responseJson.toString());
 
       final JsonObject track_object = responseJson.get("item").getAsJsonObject();
       if (track_object != null) {
