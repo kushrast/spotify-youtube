@@ -288,8 +288,14 @@ public class Application {
 
         int similarity = currentPlaying.compareSpotifyTrackToYouTubeVideo(videoTitle, channelTitle);
 
+        System.out.println("Result: " + i + ", " + videoResult.get("id")
+            .getAsJsonObject()
+            .get("videoId")
+            .getAsString());
+
         if (similarity > bestFit) {
           bestYouTubeLink = videoResult.get("id").getAsJsonObject().get("videoId").getAsString();
+          System.out.println(similarity + " " + bestFit + " " + bestYouTubeLink);
         }
       }
     }
