@@ -11,7 +11,7 @@
 <script th:inline="javascript">
 
     var error = /*[[${error}]]*/ 'default';
-    if (error != "") {
+    if (error != "" && error != null) {
       console.log("encountered error: " + error);
     };
 </script>

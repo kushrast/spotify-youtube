@@ -60,28 +60,37 @@ public class Application {
    * Redirects a user to Spotify's web authentication page in order to get API access tokens
    */
   @RequestMapping(value = "/authenticate_spotify", method = RequestMethod.GET)
-  public void authenticateWithSpotify(HttpServletResponse httpServletResponse) {
-    // Generate a random state string and save in a cookie for verification
-    final String state = UUID.randomUUID().toString();
-    setCookie("state", state, httpServletResponse);
+  public void authenticateWithSpotify(HttpServletResponse httpServletResponse,
+      final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken) {
+    if (refreshToken.equals("")) {
+      // Generate a random state string and save in a cookie for verification
+      final String state = UUID.randomUUID().toString();
+      setCookie("state", state, httpServletResponse);
 
-    // Request authorization for Spotify by redirecting user to spotify
-    final String responseType = "code";
-    final String scope = "user-read-currently-playing";
-    final String clientId = getSpotifyClientId();
-    final String redirectUri = getSpotifyRedirectUrl();
-    final String spotifyAuthLink =
-        String.format(
-            "https://accounts.spotify.com/authorize?response_type=%s&client_id=%s&scope=%s&redirect_uri=%s&state=%s",
-            responseType,
-            clientId,
-            scope,
-            redirectUri,
-            state
-        );
+      // Request authorization for Spotify by redirecting user to spotify
+      final String responseType = "code";
+      final String scope = "user-read-currently-playing";
+      final String clientId = getSpotifyClientId();
+      final String redirectUri = getSpotifyRedirectUrl();
+      final String spotifyAuthLink =
+          String.format(
+              "https://accounts.spotify.com/authorize?response_type=%s&client_id=%s&scope=%s&redirect_uri=%s&state=%s",
+              responseType,
+              clientId,
+              scope,
+              redirectUri,
+              state
+          );
 
-    httpServletResponse.setHeader("Location", spotifyAuthLink);
-    httpServletResponse.setStatus(302);
+      httpServletResponse.setHeader("Location", spotifyAuthLink);
+      httpServletResponse.setStatus(302);
+    } else {
+      try {
+        httpServletResponse.sendRedirect("/");
+      } catch (IOException e) {
+        System.out.println("Ran into IO Exception while redirecting authenticated user to mainpage.");
+      }
+    }
   }
 
   /**
