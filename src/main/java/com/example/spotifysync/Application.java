@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -167,7 +169,10 @@ public class Application {
 
     //Check YouTube
     final String youTubeLink = getYouTubeLinkFromSpotifyTrack(currentPlaying);
-    return new ModelAndView("sync", "data", youTubeLink);
+    Map<String, Object> models = new HashMap<String, Object>();
+    models.put("youTube", youTubeLink);
+    models.put(("progress", currentPlaying.getProgressMs() / 1000);
+    return new ModelAndView("sync", "youTubeLink", youTubeLink);
     //Return results
   }
 
