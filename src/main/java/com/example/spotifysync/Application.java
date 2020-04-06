@@ -168,8 +168,8 @@ public class Application {
             , JsonObject.class);
         System.out.println(responseBody);
 
-        final JsonObject track_object = responseJson.get("item").getAsJsonObject();
         try {
+          final JsonObject track_object = responseJson.get("item").getAsJsonObject();
           if (track_object != null) {
 
             final boolean isPlaying = responseJson.get("is_playing").getAsBoolean();
