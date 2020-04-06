@@ -49,6 +49,14 @@ public class Application {
   }
 
   /**
+   * Routes request to the index page. Currently a place holder.
+   */
+  @GetMapping("/index")
+  public String index() {
+    return "index";
+  }
+
+  /**
    * Redirects a user to Spotify's web authentication page in order to get API access tokens
    */
   @RequestMapping(value = "/authenticate_spotify", method = RequestMethod.GET)
@@ -103,7 +111,7 @@ public class Application {
       System.out.println("Authorization failed. Error message: " + error);
       addStandardSpotifyAuthErrorToModel(model);
     }
-    return new ModelAndView("redirect:/index", "error", model.getAttribute("error"));
+    return new ModelAndView("redirect:/", "error", model.getAttribute("error"));
   }
 
   /**
