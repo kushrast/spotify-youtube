@@ -65,7 +65,7 @@ public class Application {
     if (refreshToken.equals("")) {
       // Generate a random state string and save in a cookie for verification
       final String state = UUID.randomUUID().toString();
-      setCookie("state", state, httpServletResponse);
+      setServerCookie("state", state, httpServletResponse);
 
       // Request authorization for Spotify by redirecting user to spotify
       final String responseType = "code";
@@ -176,22 +176,29 @@ public class Application {
     model.addAttribute("error", "Encountered error while authenticating to Spotify, please try again");
   }
 
+  private void setServerCookie(final String key, final String value, final HttpServletResponse response) {
+    final Cookie cookie = new Cookie(key, value);
+    cookie.setPath("/");
+    cookie.setSecure(true);
+    cookie.setHttpOnly(true);
+    response.addCookie(cookie);
+  }
+
   private void setCookie(final String key, final String value, final HttpServletResponse response) {
-    final Cookie stateCookie = new Cookie(key, value);
-    stateCookie.setPath("/");
-    stateCookie.setSecure(true);
-    stateCookie.setHttpOnly(true);
-    response.addCookie(stateCookie);
+    final Cookie cookie = new Cookie(key, value);
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    response.addCookie(cookie);
   }
 
   private void clearCookie(final String key, final HttpServletResponse response) {
-    final Cookie stateCookie = new Cookie(key, null);
-    stateCookie.setMaxAge(0);
-    stateCookie.setSecure(true);
-    stateCookie.setHttpOnly(true);
-    stateCookie.setPath("/");
+    final Cookie cookie = new Cookie(key, null);
+    cookie.setMaxAge(0);
+    cookie.setSecure(true);
+    cookie.setHttpOnly(true);
+    cookie.setPath("/");
     //add cookie to response
-    response.addCookie(stateCookie);
+    response.addCookie(cookie);
   }
 
   private String getSpotifyClientId() {
