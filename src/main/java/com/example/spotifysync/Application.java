@@ -136,8 +136,6 @@ public class Application {
   /**
    * Endpoint that calls Spotify to get playback information for the authenticated user
    */
-  //TODO: Pull access token from refresh token if necessary
-  //TODO: Get usage on refresh token
   @RequestMapping(value = "/sync", method = RequestMethod.GET)
   public ModelAndView sync(
       @CookieValue(value = "access_token", defaultValue = "") String accessToken,
@@ -146,10 +144,10 @@ public class Application {
       final HttpServletResponse httpServletResponse
   ) {
 
-    if (refreshToken.equals(""))  {
+    if (refreshToken.equals("")) {
       //TODO: Tell user their authentication has expired
     } else if (accessToken.equals("")) {
-      accessToken = refreshAccessToken(refreshToken);
+      accessToken = getAccessTokenFromRefreshToken(refreshToken, model, httpServletResponse);
     }
     Request currentlyPlayingRequest = new Request.Builder()
         .url("https://api.spotify.com/v1/me/player/currently-playing")
@@ -192,10 +190,6 @@ public class Application {
       addStandardSpotifyAuthErrorToModel(model);
     }
     return new ModelAndView("redirect:/error", "error", model.getAttribute("error"));
-  }
-
-  private String refreshAccessToken(String refreshToken) {
-    return "";
   }
 
   /**
@@ -246,6 +240,53 @@ public class Application {
       System.out.println(Arrays.toString(e.getStackTrace()));
       addStandardSpotifyAuthErrorToModel(model);
     }
+  }
+
+  /**
+   * Makes call to Spotify to fetch access token using refresh_token. Set cookie for access token
+   */
+  private String getAccessTokenFromRefreshToken(final String refresh_token, final Model model,
+      final HttpServletResponse httpServletResponse) {
+
+    final RequestBody formBody =
+        new FormBody.Builder()
+            .add("refresh_token", refresh_token)
+            .add("grant_type", "refresh_token")
+            .build();
+
+    Request request = new Request.Builder()
+        .url("https://accounts.spotify.com/api/token")
+        .addHeader("Authorization", getSpotifyAuthHeader())
+        .post(formBody)
+        .build();
+
+
+    try {
+      Response spotifyAuthResponse = httpClient.newCall(request).execute();
+      if (!spotifyAuthResponse.isSuccessful()) {
+        System.out.println("Error while trying to fetch authentication token from Spotify. Response not successful.");
+        addStandardSpotifyAuthErrorToModel(model);
+      }
+
+      // Get response body
+      JsonObject responseJson = new Gson().fromJson(
+          spotifyAuthResponse.body().string(), JsonObject.class);
+
+      final int expiresIn = responseJson.get("expires_in").getAsInt();
+
+      System.out.println("Access Token: " + responseJson.get("access_token"));
+
+      // Set cookies with values
+      setCookie("access_token", responseJson.get("access_token")
+          .getAsString(), expiresIn, httpServletResponse);
+      return responseJson.get("access_token").getAsString();
+    } catch (IOException | NullPointerException e) {
+      System.out.println("Encountered error while fetching access_token from Spotify. Error: " + e
+          .getMessage());
+      System.out.println(Arrays.toString(e.getStackTrace()));
+      addStandardSpotifyAuthErrorToModel(model);
+    }
+    return null;
   }
 
   private void addStandardSpotifyAuthErrorToModel(final Model model) {
