@@ -140,12 +140,17 @@ public class Application {
   //TODO: Get usage on refresh token
   @RequestMapping(value = "/sync", method = RequestMethod.GET)
   public ModelAndView sync(
-      final @CookieValue(value = "access_token", defaultValue = "") String accessToken,
+      @CookieValue(value = "access_token", defaultValue = "") String accessToken,
       final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
       final Model model,
       final HttpServletResponse httpServletResponse
   ) {
 
+    if (refreshToken.equals(""))  {
+      //TODO: Tell user their authentication has expired
+    } else if (accessToken.equals("")) {
+      accessToken = refreshAccessToken(refreshToken);
+    }
     Request currentlyPlayingRequest = new Request.Builder()
         .url("https://api.spotify.com/v1/me/player/currently-playing")
         .addHeader("Authorization", "Bearer " + accessToken)
@@ -154,7 +159,8 @@ public class Application {
     try {
       Response spotifyResponse = httpClient.newCall(currentlyPlayingRequest).execute();
       if (!spotifyResponse.isSuccessful()) {
-        System.out.println("Error while trying to fetch currently playing track from Spotify. Response not successful.");
+        System.out.println("Error while trying to fetch currently playing track from Spotify. Response not successful. Message: " + spotifyResponse
+            .body());
         addStandardSpotifyAuthErrorToModel(model);
       }
 
@@ -164,14 +170,20 @@ public class Application {
       System.out.println(responseJson.toString());
 
       final JsonObject track_object = responseJson.get("item").getAsJsonObject();
-      if (track_object != null) {
+      try {
+        if (track_object != null) {
 
-        final boolean isPlaying = responseJson.get("is_playing").getAsBoolean();
-        final int durationMs = track_object.get("duration_ms").getAsInt();
-        final int progressMs = responseJson.get("progress_ms").getAsInt();
-        final String trackName = track_object.get("name").getAsString();
+          final boolean isPlaying = responseJson.get("is_playing").getAsBoolean();
+          final int durationMs = track_object.get("duration_ms").getAsInt();
+          final int progressMs = responseJson.get("progress_ms").getAsInt();
+          final String trackName = track_object.get("name").getAsString();
 
-        return new ModelAndView("sync", "data", String.format("Current: %s, %d: of %d. Is Playing?: %b", trackName, progressMs, durationMs, isPlaying));
+          return new ModelAndView("sync", "data", String.format("Current: %s, %d: of %d. Is Playing?: %b", trackName, progressMs, durationMs, isPlaying));
+        } else {
+          return new ModelAndView("sync", "data", "Nothing playing.");
+        }
+      } catch (Exception e) {
+        System.out.println("Encountered error while parsing Spotify response. error: " + e.getMessage());
       }
     } catch (IOException | NullPointerException e) {
       System.out.println("Encountered error while fetching currently playing track from Spotify. Error: " + e
@@ -180,6 +192,10 @@ public class Application {
       addStandardSpotifyAuthErrorToModel(model);
     }
     return new ModelAndView("redirect:/error", "error", model.getAttribute("error"));
+  }
+
+  private String refreshAccessToken(String refreshToken) {
+    return "";
   }
 
   /**
@@ -214,12 +230,14 @@ public class Application {
       JsonObject responseJson = new Gson().fromJson(
           spotifyAuthResponse.body().string(), JsonObject.class);
 
+      final int expiresIn = responseJson.get("expires_in").getAsInt();
+
       System.out.println("Access Token: " + responseJson.get("access_token"));
       System.out.println("Refresh Token: " + responseJson.get("refresh_token"));
 
       // Set cookies with values
       setCookie("access_token", responseJson.get("access_token")
-          .getAsString(), httpServletResponse);
+          .getAsString(), expiresIn, httpServletResponse);
       setCookie("refresh_token", responseJson.get("refresh_token")
           .getAsString(), httpServletResponse);
     } catch (IOException | NullPointerException e) {
@@ -234,7 +252,8 @@ public class Application {
     model.addAttribute("error", "Encountered error while authenticating to Spotify, please try again");
   }
 
-  private void setServerCookie(final String key, final String value, final HttpServletResponse response) {
+  private void setServerCookie(final String key, final String value,
+      final HttpServletResponse response) {
     final Cookie cookie = new Cookie(key, value);
     cookie.setPath("/");
     cookie.setSecure(true);
@@ -243,9 +262,15 @@ public class Application {
   }
 
   private void setCookie(final String key, final String value, final HttpServletResponse response) {
+    setCookie(key, value, Integer.MAX_VALUE, response);
+  }
+
+  private void setCookie(final String key, final String value, final int expiryTime,
+      final HttpServletResponse response) {
     final Cookie cookie = new Cookie(key, value);
     cookie.setPath("/");
     cookie.setSecure(true);
+    cookie.setMaxAge(expiryTime);
     response.addCookie(cookie);
   }
 
