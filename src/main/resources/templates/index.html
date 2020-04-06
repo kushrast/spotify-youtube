@@ -1,12 +1,14 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <title>Getting Started: Serving Web Content</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
 <p th:text="'Hello!'" />
-<a href="/authenticate_spotify">Authenticate Me!</a>
+<a href="/authenticate_spotify" id="authenticate">Authenticate Me!</a>
+<a href="/sync" id="sync">Sync</a>
 </body>
 <script th:inline="javascript">
 
@@ -14,5 +16,12 @@
     if (error != "" && error != null) {
       console.log("encountered error: " + error);
     };
+
+    $( "#sync" ).hide();
+    var refresh_token = $.cookie("refresh_token");
+    if (refresh_token != null && refresh_token != "") {
+    	$( "#authenticate" ).hide();
+    	$( "#sync" ).show();
+    }
 </script>
 </html>
