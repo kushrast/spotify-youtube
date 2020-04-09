@@ -35,6 +35,7 @@
 		  .done(function( data ) {
 		    if ( console && console.log ) {
 		      console.log( "data:", data);
+		      data = JSON.parse(data);
 		      $("body").remove("#youtubePlayer");
 		      autoplay = data["isPlaying"] == "true" ? "autoplay" : ""
           	autoplayNum = data["isPlaying"] == "true" ? 1 : 0;
