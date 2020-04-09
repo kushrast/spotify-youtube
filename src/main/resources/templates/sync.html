@@ -8,6 +8,7 @@
 </head>
 <body>
 	<div id="nodata">No Content Playing</div>
+  <a id="update">Update</a>
 </body>
 <script th:inline="javascript">
 
@@ -19,14 +20,14 @@
     var autoplayNum = isPlaying ? 1 : 0;
     if (youTubeId != null) {
     	$("#nodata").hide();
-    	$("body").append('<iframe width="1280" height="720" src="https://www.youtube.com/embed/'+youTubeId+'?start='+progress+'&mute=1&autoplay=1" frameborder="0" allow="accelerometer; '+autoplay+'; encrypted-media; gyroscope;picture-in-picture" allowfullscreen></iframe>');
+    	$("body").append('<iframe width="1280" height="720" id="youtubePlayer" src="https://www.youtube.com/embed/'+youTubeId+'?start='+progress+'&mute=1&autoplay='+autoplayNum+'" frameborder="0" allow="accelerometer; '+autoplay+'; encrypted-media; gyroscope;picture-in-picture" allowfullscreen></iframe>');
     }
 
     // setInterval(fetchData, 15000);
 
     function fetchData() {
 		$.ajax({
-		  url: "/sync",
+		  url: "/update",
 		  beforeSend: function( xhr ) {
 		    xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
 		  }
@@ -34,10 +35,16 @@
 		  .done(function( data ) {
 		    if ( console && console.log ) {
 		      console.log( "data:", data);
+		      $("body").remove("#youtubePlayer");
+		      autoplay = data["isPlaying"] ? "autoplay" : ""
+          	autoplayNum = data["isPlaying"] ? 1 : 0;
+		      $("body").append('<iframe width="1280" height="720" id="youtubePlayer" src="https://www.youtube.com/embed/'+data["youTube"]+'?start='+data["progress"]+'&mute=1&autoplay='+autoplayNum+'" frameborder="0" allow="accelerometer; '+autoplay+'; encrypted-media; gyroscope;picture-in-picture" allowfullscreen></iframe>');
 		    }
 		  });
     }
 
-    fetchData();
+    $("#update").on('click', event => {
+        fetchData();
+    });
 </script>
 </html>
