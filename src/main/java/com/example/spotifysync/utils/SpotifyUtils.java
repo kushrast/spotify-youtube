@@ -4,13 +4,18 @@ import static com.example.spotifysync.utils.CookieUtils.setCookie;
 import static com.example.spotifysync.utils.ErrorUtils.addStandardSpotifyAuthErrorToModel;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import com.example.spotifysync.schema.SpotifyCurrentPlaying;
 
 import org.springframework.ui.Model;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,11 +27,14 @@ import okhttp3.Response;
 
 /**
  * Utils file that calls Spotify and provides Spotify client secrets
+ *
+ * //TODO: Add a Spotify Client?
  */
 public class SpotifyUtils {
   public SpotifyUtils() {
   }
 
+  //TODO: Use Dagger
   private final OkHttpClient httpClient = new OkHttpClient();
 
   public static final String SPOTIFY_AUTH_CALLBACK = "/spotify_auth_callback";
@@ -143,6 +151,64 @@ public class SpotifyUtils {
       System.out.println(Arrays.toString(e.getStackTrace()));
       addStandardSpotifyAuthErrorToModel(model);
     }
+  }
+
+  public SpotifyCurrentPlaying getCurrentPlayingFromSpotify(final String accessToken) {
+    final Request spotifyCurrentPlayingRequest = new Request.Builder()
+        .url("https://api.spotify.com/v1/me/player/currently-playing")
+        .addHeader("Authorization", "Bearer " + accessToken)
+        .build();
+    try {
+      Response spotifyCurrentPlayingResponse = httpClient.newCall(spotifyCurrentPlayingRequest)
+          .execute();
+      if (!spotifyCurrentPlayingResponse.isSuccessful()) {
+        System.out.println("Error while trying to fetch currently playing track from Spotify. Response not successful. Message: " + spotifyCurrentPlayingResponse
+            .body());
+        return null;
+      } else {
+        final String responseBody = spotifyCurrentPlayingResponse.body().string();
+        System.out.println(responseBody);
+        // Get response body
+        JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
+
+        if (responseBody.isEmpty()) {
+          return new SpotifyCurrentPlaying();
+        }
+        try {
+          final JsonObject track_object = responseJson.get("item").getAsJsonObject();
+          if (track_object != null) {
+
+            final boolean isPlaying = responseJson.get("is_playing").getAsBoolean();
+            final int durationMs = track_object.get("duration_ms").getAsInt();
+            final int progressMs = responseJson.get("progress_ms").getAsInt();
+            final String trackName = track_object.get("name").getAsString();
+
+            final List<String> artists = new ArrayList<>();
+            if (track_object.has("artists")) {
+              final JsonArray artistArray = track_object.getAsJsonArray("artists");
+              for (int i = 0; i < artistArray.size(); i++) {
+                final String artistName = artistArray.get(i)
+                    .getAsJsonObject()
+                    .get("name")
+                    .getAsString();
+                artists.add(artistName);
+              }
+            }
+
+            return new SpotifyCurrentPlaying(durationMs, progressMs, trackName, artists, isPlaying);
+          } else {
+            return new SpotifyCurrentPlaying();
+          }
+        } catch (Exception e) {
+          System.out.println("Encountered error while parsing Spotify response. error: " + e.getMessage());
+        }
+      }
+    } catch (IOException | NullPointerException e) {
+      System.out.println("Encountered error while fetching currently playing track from Spotify. Error: " + e
+          .getMessage());
+      System.out.println(Arrays.toString(e.getStackTrace()));
+    }
+    return null;
   }
 
   /**
