@@ -8,7 +8,7 @@
 </head>
 <body>
 	<div id="nodata">No Content Playing</div>
-  <a id="update">Update</a>
+  <button id="update">Update</button>
 </body>
 <script th:inline="javascript">
 
@@ -36,9 +36,11 @@
 		    if ( console && console.log ) {
 		      console.log( "data:", data);
 		      $("body").remove("#youtubePlayer");
-		      autoplay = data["isPlaying"] ? "autoplay" : ""
-          	autoplayNum = data["isPlaying"] ? 1 : 0;
-		      $("body").append('<iframe width="1280" height="720" id="youtubePlayer" src="https://www.youtube.com/embed/'+data["youTube"]+'?start='+data["progress"]+'&mute=1&autoplay='+autoplayNum+'" frameborder="0" allow="accelerometer; '+autoplay+'; encrypted-media; gyroscope;picture-in-picture" allowfullscreen></iframe>');
+		      autoplay = data["isPlaying"] == "true" ? "autoplay" : ""
+          	autoplayNum = data["isPlaying"] == "true" ? 1 : 0;
+          	$("body").remove("#youtubePlayer");
+          	progress = data["progress"];
+		      $("body").append('<iframe width="1280" height="720" id="youtubePlayer" src="https://www.youtube.com/embed/'+data["youTube"]+'?start='+progress+'&mute=1&autoplay='+autoplayNum+'" frameborder="0" allow="accelerometer; '+autoplay+'; encrypted-media; gyroscope;picture-in-picture" allowfullscreen></iframe>');
 		    }
 		  });
     }
