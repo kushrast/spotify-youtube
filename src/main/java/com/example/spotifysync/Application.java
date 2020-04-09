@@ -94,6 +94,44 @@ public class Application {
     return model;
   }
 
+  /**
+   * Endpoint that calls Spotify to get updated playback information for the authenticated user
+   */
+  @GetMapping(value = "/update",  produces="application/json")
+  @ResponseBody
+  public Model update(
+      @CookieValue(value = "access_token", defaultValue = "") String accessToken,
+      final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
+      final Model model,
+      final HttpServletResponse httpServletResponse
+  ) {
+
+    //Check Access Token
+    accessToken = spotifyUtils.verifyOrRefreshSpotifyAccessToken(accessToken, refreshToken, httpServletResponse, model);
+    if (accessToken == null) {
+      //error
+      return model.addAttribute("error", "Could not get access token from Spotify");
+    }
+
+    //Ask Spotify for Current Playing
+    final SpotifyCurrentPlaying currentPlaying = spotifyUtils.getCurrentPlayingFromSpotify(accessToken);
+
+    if (currentPlaying == null) {
+      return model.addAttribute("error", "Error while retrieving most recent track from Spotify");
+    } else if (currentPlaying.isEmpty()) {
+      return model.addAttribute("empty", "No data found");
+    }
+
+    //Check YouTube
+    final String youTubeLink = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
+    model.addAttribute("youTube", youTubeLink);
+    model.addAttribute("progress", currentPlaying.getProgressMs() / 1000 + 1);
+    model.addAttribute("isPlaying", currentPlaying.isPlaying());
+
+    //Return results
+    return model;
+  }
+
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }

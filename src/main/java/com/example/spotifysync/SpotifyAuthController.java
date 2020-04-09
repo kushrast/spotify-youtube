@@ -74,7 +74,9 @@ public class SpotifyAuthController {
       System.out.println("Stored state does not match state returned from Spotify");
       addStandardSpotifyAuthErrorToModel(model);
     } else if (!code.equals("")) {
-      spotifyUtils.fetchAccessTokenFromAuthCode(code, model, httpServletResponse);
+      if (spotifyUtils.fetchAccessTokenFromAuthCode(code, model, httpServletResponse)) {
+        return new ModelAndView("index");
+      }
     } else {
       System.out.println("Authorization failed. Error message: " + error);
       addStandardSpotifyAuthErrorToModel(model);

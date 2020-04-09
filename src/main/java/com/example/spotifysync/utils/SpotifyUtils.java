@@ -105,8 +105,10 @@ public class SpotifyUtils {
   /**
    * Makes call to Spotify to fetch access token using auth code. Sets cookies with access and
    * refresh tokens.
+   *
+   * Returns true if executed without errors.
    */
-  public void fetchAccessTokenFromAuthCode(final String code,
+  public boolean fetchAccessTokenFromAuthCode(final String code,
       final Model model,
       final HttpServletResponse httpServletResponse) {
 
@@ -145,12 +147,15 @@ public class SpotifyUtils {
           .getAsString(), expiresIn, httpServletResponse);
       setCookie("refresh_token", responseJson.get("refresh_token")
           .getAsString(), httpServletResponse);
+      return true;
+
     } catch (IOException | NullPointerException e) {
       System.out.println("Encountered error while fetching access_token from Spotify. Error: " + e
           .getMessage());
       System.out.println(Arrays.toString(e.getStackTrace()));
       addStandardSpotifyAuthErrorToModel(model);
     }
+    return false;
   }
 
   public SpotifyCurrentPlaying getCurrentPlayingFromSpotify(final String accessToken) {
