@@ -112,9 +112,11 @@ public class Application {
       //error
       return model.addAttribute("error", "Could not get access token from Spotify");
     }
+    System.out.println("Found access token");
 
     //Ask Spotify for Current Playing
     final SpotifyCurrentPlaying currentPlaying = spotifyUtils.getCurrentPlayingFromSpotify(accessToken);
+    System.out.println("Got current playing: " + currentPlaying);
 
     if (currentPlaying == null) {
       return model.addAttribute("error", "Error while retrieving most recent track from Spotify");
@@ -124,6 +126,7 @@ public class Application {
 
     //Check YouTube
     final String youTubeLink = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
+    System.out.println("YT Link: " + youTubeLink);
     model.addAttribute("youTube", youTubeLink);
     model.addAttribute("progress", currentPlaying.getProgressMs() / 1000 + 1);
     model.addAttribute("isPlaying", currentPlaying.isPlaying());

@@ -68,15 +68,15 @@ public class YouTubeUtils {
 
         int similarity = currentPlaying.compareSpotifyTrackToYouTubeVideo(videoTitle, channelTitle);
 
-        System.out.println("Result: " + i + ", " + videoResult.get("id")
-            .getAsJsonObject()
-            .get("videoId")
-            .getAsString());
+//        System.out.println("Result: " + i + ", " + videoResult.get("id")
+//            .getAsJsonObject()
+//            .get("videoId")
+//            .getAsString());
 
         if (similarity > bestFit) {
           bestFit = similarity;
           bestYouTubeLink = videoResult.get("id").getAsJsonObject().get("videoId").getAsString();
-          System.out.println(similarity + " " + bestFit + " " + bestYouTubeLink);
+//          System.out.println(similarity + " " + bestFit + " " + bestYouTubeLink);
         }
       }
     }
