@@ -1,7 +1,5 @@
 package com.example.spotifysync;
 
-import com.google.gson.Gson;
-
 import com.example.spotifysync.schema.SpotifyCurrentPlaying;
 import com.example.spotifysync.utils.SpotifyUtils;
 import com.example.spotifysync.utils.YouTubeUtils;
@@ -12,10 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -99,18 +94,19 @@ public class Application {
    */
   @GetMapping(value = "/update",  produces="application/json")
   @ResponseBody
-  public Model update(
+  public Map<String, String> update(
       @CookieValue(value = "access_token", defaultValue = "") String accessToken,
       final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
       final Model model,
       final HttpServletResponse httpServletResponse
   ) {
-
+    Map<String, String> response = new HashMap<>();
     //Check Access Token
     accessToken = spotifyUtils.verifyOrRefreshSpotifyAccessToken(accessToken, refreshToken, httpServletResponse, model);
     if (accessToken == null) {
       //error
-      return model.addAttribute("error", "Could not get access token from Spotify");
+      response.put("error", "Could not get access token from Spotify");
+      return response;
     }
     System.out.println("Found access token");
 
@@ -119,20 +115,22 @@ public class Application {
     System.out.println("Got current playing: " + currentPlaying);
 
     if (currentPlaying == null) {
-      return model.addAttribute("error", "Error while retrieving most recent track from Spotify");
+      response.put("error", "Error while retrieving most recent track from Spotify");
+      return response;
     } else if (currentPlaying.isEmpty()) {
-      return model.addAttribute("empty", "No data found");
+      response.put("empty", "No data found");
+      return response;
     }
 
     //Check YouTube
     final String youTubeLink = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
     System.out.println("YT Link: " + youTubeLink);
-    model.addAttribute("youTube", youTubeLink);
-    model.addAttribute("progress", currentPlaying.getProgressMs() / 1000 + 1);
-    model.addAttribute("isPlaying", currentPlaying.isPlaying());
+    response.put("youTube", youTubeLink);
+    response.put("progress", String.valueOf(currentPlaying.getProgressMs() / 1000 + 1));
+    response.put("isPlaying", String.valueOf(currentPlaying.isPlaying()));
 
     //Return results
-    return model;
+    return response;
   }
 
   public static void main(String[] args) {
