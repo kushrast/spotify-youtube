@@ -3,26 +3,49 @@
 <head>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
-  <title>Getting Started: Serving Web Content</title>
+  <title>Spotify Youtube Sync</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
 <p th:text="'Hello!'" />
 <a href="/authenticate_spotify" id="authenticate">Authenticate Me!</a>
-<a href="/sync" id="sync">Sync</a>
+<button id="sync">Start syncing</button>
 </body>
 <script th:inline="javascript">
-
-    var error = /*[[${error}]]*/ 'default';
+  function onLoad() {
+    $( "#sync" ).hide();
+    var error = [[${error}]];
     if (error != "" && error != null) {
       console.log("encountered error: " + error);
     };
+    alert(error);
 
-    $( "#sync" ).hide();
     var refresh_token = Cookies.get("refresh_token");
     if (refresh_token != null && refresh_token != "") {
-    	$( "#authenticate" ).hide();
-    	$( "#sync" ).show();
+      $( "#authenticate" ).hide();
+      $( "#sync" ).show();
     }
+  }
+
+  function sync() {
+    console.log("Sync request");
+  }
+
+  onLoad();
+  var syncing = false;
+
+  $("#sync").on("click", () => {
+    if (syncing) {
+      $("sync").html("Start syncing");
+
+      clearInterval();
+    } else {
+      $("sync").html("Stop sync");
+
+      setInterval(sync, 15000);
+    }
+
+    syncing = !syncing;
+  });
 </script>
 </html>
