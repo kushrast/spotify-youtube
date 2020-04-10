@@ -12,9 +12,10 @@
 <button id="sync">Start syncing</button>
 </body>
 <script th:inline="javascript">
+  var syncing = false;
+  var playbackData = null;
+
   function onLoad() {
-    var syncing = false;
-    var playbackData = null;
     $( "#sync" ).hide();
     var error = [[${error}]];
     if (error != "" && error != null) {
@@ -58,9 +59,8 @@
     }
 
   function toggleSync(e) {
-        if (syncing) {
+    if (syncing) {
       $("#sync").html("Start syncing");
-
       clearInterval();
     } else {
       $("#sync").html("Stop sync");
