@@ -17,8 +17,8 @@
     var error = [[${error}]];
     if (error != "" && error != null) {
       console.log("encountered error: " + error);
+      alert(error);
     };
-    alert(error);
 
     var refresh_token = Cookies.get("refresh_token");
     if (refresh_token != null && refresh_token != "") {
@@ -28,20 +28,31 @@
   }
 
   function sync() {
-    console.log("Sync request");
-  }
+    $.getJSON({
+      url: "/update"
+    })
+      .done(function( data ) {
+        console.log( "data:", data);
+        // $("body").remove("#youtubePlayer");
+        // autoplay = data["isPlaying"] == "true" ? "autoplay" : ""
+        //   autoplayNum = data["isPlaying"] == "true" ? 1 : 0;
+        //   $("#youtubePlayer").remove();
+        //   progress = data["progress"];
+        // $("body").append('<iframe width="1280" height="720" id="youtubePlayer" src="https://www.youtube.com/embed/'+data["youTube"]+'?start='+progress+'&mute=1&autoplay='+autoplayNum+'" frameborder="0" allow="accelerometer; '+autoplay+'; encrypted-media; gyroscope;picture-in-picture" allowfullscreen></iframe>');
+      });
+    }
 
   onLoad();
   var syncing = false;
 
-  $("#sync").on("click", () => {
+  $("#sync").on("click", event => {
     if (syncing) {
-      $("sync").html("Start syncing");
+      $("#sync").html("Start syncing");
 
       clearInterval();
     } else {
-      $("sync").html("Stop sync");
-
+      $("#sync").html("Stop sync");
+      sync();
       setInterval(sync, 15000);
     }
 
