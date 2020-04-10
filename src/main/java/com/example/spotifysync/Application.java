@@ -11,10 +11,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -55,14 +57,18 @@ public class Application {
   /**
    * Endpoint that calls Spotify to get updated playback information for the authenticated user
    */
-  @GetMapping(value = "/update",  produces="application/json")
+  @GetMapping(value = "/update", produces = "application/json")
   @ResponseBody
   public FrontendPlayResponse update(
       @CookieValue(value = "access_token", defaultValue = "") String accessToken,
       final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
+      @RequestParam(name = "spotifyUri") Optional<String> spotifyUriPlayingOnFrontend,
       final Model model,
       final HttpServletResponse httpServletResponse
   ) {
+
+    System.out.println(spotifyUriPlayingOnFrontend);
+
     Map<String, String> response = new HashMap<>();
     //Check Access Token
     accessToken = spotifyUtils.verifyOrRefreshSpotifyAccessToken(accessToken, refreshToken, httpServletResponse, model);
@@ -70,11 +76,9 @@ public class Application {
       //error
       return new FrontendPlayResponse("Could not get access token from Spotify");
     }
-    System.out.println("Found access token");
 
     //Ask Spotify for Current Playing
     final SpotifyCurrentPlaying currentPlaying = spotifyUtils.getCurrentPlayingFromSpotify(accessToken);
-    System.out.println("Got current playing: " + currentPlaying);
 
     if (currentPlaying == null) {
       return new FrontendPlayResponse("Could not get access token from Spotify");
@@ -83,9 +87,18 @@ public class Application {
       return new FrontendPlayResponse();
     }
 
-    //Check YouTube
-    final String youTubeId = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
-    System.out.println("YT ID: " + youTubeId);
+    final String youTubeId;
+
+    // Make API request to YouTube if no spotify URI provided from front end or if frontend Spotify
+    // URI does not match up to date URI from Spotify
+    if (!spotifyUriPlayingOnFrontend.isPresent() || !currentPlaying.getSpotifyUri()
+        .equals(spotifyUriPlayingOnFrontend.get())) {
+      youTubeId = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
+    } else {
+      System.out.println("Skipping YouTube API call");
+      youTubeId = null;
+    }
+
     response.put("youTube", youTubeId);
     response.put("progress", String.valueOf(currentPlaying.getProgressSeconds() + 1));
     response.put("isPlaying", String.valueOf(currentPlaying.isPlaying()));
