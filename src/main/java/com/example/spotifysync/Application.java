@@ -1,5 +1,6 @@
 package com.example.spotifysync;
 
+import com.example.spotifysync.schema.FrontendPlayResponse;
 import com.example.spotifysync.schema.SpotifyCurrentPlaying;
 import com.example.spotifysync.utils.SpotifyUtils;
 import com.example.spotifysync.utils.YouTubeUtils;
@@ -52,49 +53,11 @@ public class Application {
   }
 
   /**
-   * Endpoint that calls Spotify to get playback information for the authenticated user
-   */
-  @GetMapping(value = "/sync")
-  @ResponseBody
-  public Model sync(
-      @CookieValue(value = "access_token", defaultValue = "") String accessToken,
-      final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
-      final Model model,
-      final HttpServletResponse httpServletResponse
-  ) {
-
-    //Check Access Token
-    accessToken = spotifyUtils.verifyOrRefreshSpotifyAccessToken(accessToken, refreshToken, httpServletResponse, model);
-    if (accessToken == null) {
-      //error
-      return model.addAttribute("error", "Could not get access token from Spotify");
-    }
-
-    //Ask Spotify for Current Playing
-    final SpotifyCurrentPlaying currentPlaying = spotifyUtils.getCurrentPlayingFromSpotify(accessToken);
-
-    if (currentPlaying == null) {
-      return model.addAttribute("error", "Error while retrieving most recent track from Spotify");
-    } else if (currentPlaying.isEmpty()) {
-      return model.addAttribute("empty", "No data found");
-    }
-
-    //Check YouTube
-    final String youTubeLink = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
-    model.addAttribute("youTube", youTubeLink);
-    model.addAttribute("progress", currentPlaying.getProgressMs() / 1000 + 1);
-    model.addAttribute("isPlaying", currentPlaying.isPlaying());
-
-    //Return results
-    return model;
-  }
-
-  /**
    * Endpoint that calls Spotify to get updated playback information for the authenticated user
    */
   @GetMapping(value = "/update",  produces="application/json")
   @ResponseBody
-  public Map<String, String> update(
+  public FrontendPlayResponse update(
       @CookieValue(value = "access_token", defaultValue = "") String accessToken,
       final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
       final Model model,
@@ -105,8 +68,7 @@ public class Application {
     accessToken = spotifyUtils.verifyOrRefreshSpotifyAccessToken(accessToken, refreshToken, httpServletResponse, model);
     if (accessToken == null) {
       //error
-      response.put("error", "Could not get access token from Spotify");
-      return response;
+      return new FrontendPlayResponse("Could not get access token from Spotify");
     }
     System.out.println("Found access token");
 
@@ -115,22 +77,27 @@ public class Application {
     System.out.println("Got current playing: " + currentPlaying);
 
     if (currentPlaying == null) {
-      response.put("error", "Error while retrieving most recent track from Spotify");
-      return response;
+      return new FrontendPlayResponse("Could not get access token from Spotify");
     } else if (currentPlaying.isEmpty()) {
       response.put("empty", "No data found");
-      return response;
+      return new FrontendPlayResponse();
     }
 
     //Check YouTube
-    final String youTubeLink = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
-    System.out.println("YT Link: " + youTubeLink);
-    response.put("youTube", youTubeLink);
-    response.put("progress", String.valueOf(currentPlaying.getProgressMs() / 1000 + 1));
+    final String youTubeId = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
+    System.out.println("YT ID: " + youTubeId);
+    response.put("youTube", youTubeId);
+    response.put("progress", String.valueOf(currentPlaying.getProgressSeconds() + 1));
     response.put("isPlaying", String.valueOf(currentPlaying.isPlaying()));
 
+    final FrontendPlayResponse frontendPlayResponse =
+        new FrontendPlayResponse(
+            currentPlaying.getSpotifyUri(),
+            youTubeId,
+            currentPlaying.getProgressSeconds() + 1,
+            currentPlaying.isPlaying());
     //Return results
-    return response;
+    return frontendPlayResponse;
   }
 
   public static void main(String[] args) {

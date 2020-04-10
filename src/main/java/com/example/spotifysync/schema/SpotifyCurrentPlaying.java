@@ -12,16 +12,18 @@ public class SpotifyCurrentPlaying {
   private String trackName;
   private List<String> artists;
   private boolean isPlaying;
+  private String spotifyUri;
 
   private boolean isEmpty;
 
   public SpotifyCurrentPlaying(int durationMs, int progressMs, String trackName,
-      List<String> artists, boolean isPlaying) {
+      List<String> artists, boolean isPlaying, String spotifyUri) {
     this.durationMs = durationMs;
     this.progressMs = progressMs;
     this.trackName = trackName;
     this.artists = artists;
     this.isPlaying = isPlaying;
+    this.spotifyUri = spotifyUri;
     this.isEmpty = false;
   }
 
@@ -33,8 +35,8 @@ public class SpotifyCurrentPlaying {
     return durationMs;
   }
 
-  public int getProgressMs() {
-    return progressMs;
+  public int getProgressSeconds() {
+    return progressMs / 1000;
   }
 
   public String getTrackName() {
@@ -47,6 +49,10 @@ public class SpotifyCurrentPlaying {
 
   public boolean isPlaying() {
     return isPlaying;
+  }
+
+  public String getSpotifyUri() {
+    return spotifyUri;
   }
 
   public boolean isEmpty() {

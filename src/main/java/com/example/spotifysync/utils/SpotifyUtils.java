@@ -187,6 +187,7 @@ public class SpotifyUtils {
             final int durationMs = track_object.get("duration_ms").getAsInt();
             final int progressMs = responseJson.get("progress_ms").getAsInt();
             final String trackName = track_object.get("name").getAsString();
+            final String trackUri = track_object.get("uri").getAsString();
 
             final List<String> artists = new ArrayList<>();
             if (track_object.has("artists")) {
@@ -200,7 +201,7 @@ public class SpotifyUtils {
               }
             }
 
-            return new SpotifyCurrentPlaying(durationMs, progressMs, trackName, artists, isPlaying);
+            return new SpotifyCurrentPlaying(durationMs, progressMs, trackName, artists, isPlaying, trackUri);
           } else {
             return new SpotifyCurrentPlaying();
           }
