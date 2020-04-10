@@ -47,7 +47,7 @@
         var autoplay = data["currentPlaying"] == "true" ? "autoplay" : "";
         var autoplayNum = data["currentPlaying"] == "true" ? 1 : 0;
         var progress = data["progressSeconds"];
-        var youTubeId = data["youTubeId"] != "" : data["youTubeId"] ? oldYouTubeId;
+        var youTubeId = data["youTubeId"] != "" ? data["youTubeId"] : oldYouTubeId;
 
         if (youTubeId == "") {
           alert("encountered error while getting latest state from server.");
