@@ -62,7 +62,7 @@ public class Application {
   public FrontendPlayResponse update(
       @CookieValue(value = "access_token", defaultValue = "") String accessToken,
       final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken,
-      @RequestParam(name = "spotifyUri") Optional<String> spotifyUriPlayingOnFrontend,
+      @RequestParam(name = "spotifyUri", required = false) final String spotifyUriPlayingOnFrontend,
       final Model model,
       final HttpServletResponse httpServletResponse
   ) {
@@ -91,8 +91,7 @@ public class Application {
 
     // Make API request to YouTube if no spotify URI provided from front end or if frontend Spotify
     // URI does not match up to date URI from Spotify
-    if (!spotifyUriPlayingOnFrontend.isPresent() || !currentPlaying.getSpotifyUri()
-        .equals(spotifyUriPlayingOnFrontend.get())) {
+    if (!currentPlaying.getSpotifyUri().equals(spotifyUriPlayingOnFrontend)) {
       youTubeId = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
     } else {
       System.out.println("Skipping YouTube API call");
