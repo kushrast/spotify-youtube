@@ -3,7 +3,6 @@ package com.example.spotifysync.schema;
 /**
  * Entity class to keep track of the data sent to the frontend for the sync endpoint
  */
-@Entity
 public class FrontendPlayResponse {
   private String spotifyUri;
   private String youTubeId;
@@ -25,5 +24,25 @@ public class FrontendPlayResponse {
 
   public FrontendPlayResponse(String error) {
     this.error = error;
+  }
+
+  public String getSpotifyUri() {
+    return spotifyUri;
+  }
+
+  public String getYouTubeId() {
+    return youTubeId;
+  }
+
+  public int getProgressSeconds() {
+    return progressSeconds;
+  }
+
+  public boolean isPlaying() {
+    return isPlaying;
+  }
+
+  public String getError() {
+    return error;
   }
 }
