@@ -33,13 +33,13 @@ public class YouTubeUtils {
     try {
       Response youTubeApplicableVideosResponse = httpClient.newCall(youTubeGetApplicableVideosRequest)
           .execute();
+      final String youTubeResponse = youTubeApplicableVideosResponse
+          .body().string();
       if (!youTubeApplicableVideosResponse.isSuccessful()) {
-        System.out.println("Error while trying to get videos from YouTube. Response not successful. Message: " + youTubeApplicableVideosResponse
-            .body());
+        System.out.println("Error while trying to get videos from YouTube. Response not successful. Message: " + youTubeResponse);
         return null;
       } else {
-        final String responseBody = youTubeApplicableVideosResponse.body().string();
-        JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
+        JsonObject responseJson = new Gson().fromJson(youTubeResponse, JsonObject.class);
 
         return getBestYouTubeVideoFromResponse(currentPlaying, responseJson);
       }
@@ -68,15 +68,15 @@ public class YouTubeUtils {
 
         int similarity = currentPlaying.compareSpotifyTrackToYouTubeVideo(videoTitle, channelTitle);
 
-//        System.out.println("Result: " + i + ", " + videoResult.get("id")
-//            .getAsJsonObject()
-//            .get("videoId")
-//            .getAsString());
+        //        System.out.println("Result: " + i + ", " + videoResult.get("id")
+        //            .getAsJsonObject()
+        //            .get("videoId")
+        //            .getAsString());
 
         if (similarity > bestFit) {
           bestFit = similarity;
           bestYouTubeLink = videoResult.get("id").getAsJsonObject().get("videoId").getAsString();
-//          System.out.println(similarity + " " + bestFit + " " + bestYouTubeLink);
+          //          System.out.println(similarity + " " + bestFit + " " + bestYouTubeLink);
         }
       }
     }
