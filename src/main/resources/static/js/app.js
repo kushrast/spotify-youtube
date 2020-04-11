@@ -60,6 +60,9 @@ function updateYouTubePlayer(isSameVideo, videoId, progress, currentlyPlaying) {
         console.log("Pause");
     player.pauseVideo();
   }
+
+  var d = new Date();
+  $("#sync_timestamp").html(d.toLocaleTimeString());
   player.mute();
 }
 
