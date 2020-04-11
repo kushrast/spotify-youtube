@@ -17,10 +17,9 @@ function onLoad() {
   lightMode();
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
-    if (typeof(Storage) !== "undefined" && sessionStorage.colorMode) {
-      if (sessionStorage.colorMode != "light") {
-        toggleColor();
-      }
+    if (typeof(Storage) !== "undefined" && sessionStorage.colorMode != "light") {
+      console.log(sessionStorage.colorMode);
+      toggleColor();
     } else {
       toggleColor();
     }
@@ -91,9 +90,21 @@ function updateYouTubePlayer(isSameVideo, videoId, progress, currentlyPlaying) {
 function onYouTubePlayerAPIReady() {
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
+
+    var width = 356; //min width we will display
+    var height = 200;
+
+    var y = window.outerHeight * .85;
+    var x = y*16/9;
+
+    if (x > width) {
+      width = parseInt(x);
+      height = parseInt(y);
+    }
+
     player = new YT.Player('youTubePlayer', {
-      height: '720',
-      width: '1280',
+      height: height,
+      width: width,
       videoId: 'xWggTb45brM',
     });
   }
