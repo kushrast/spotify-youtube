@@ -38,7 +38,7 @@ public class FrontendPlayResponse {
     return progressSeconds;
   }
 
-  public boolean currentPlaying() {
+  public boolean getCurrentPlaying() {
     return currentPlaying;
   }
 

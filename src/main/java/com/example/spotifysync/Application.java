@@ -98,18 +98,12 @@ public class Application {
       youTubeId = null;
     }
 
-    response.put("youTube", youTubeId);
-    response.put("progress", String.valueOf(currentPlaying.getProgressSeconds() + 1));
-    response.put("isPlaying", String.valueOf(currentPlaying.isPlaying()));
-
-    final FrontendPlayResponse frontendPlayResponse =
-        new FrontendPlayResponse(
-            currentPlaying.getSpotifyUri(),
-            youTubeId,
-            currentPlaying.getProgressSeconds() + 1,
-            currentPlaying.isPlaying());
     //Return results
-    return frontendPlayResponse;
+    return new FrontendPlayResponse(
+        currentPlaying.getSpotifyUri(),
+        youTubeId,
+        currentPlaying.getProgressSeconds() + 1,
+        currentPlaying.isPlaying());
   }
 
   public static void main(String[] args) {
