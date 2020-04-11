@@ -111,8 +111,8 @@ function onYouTubePlayerAPIReady() {
     }
 
     player = new YT.Player('youTubePlayer', {
-      height: height,
-      width: width,
+      height: parseInt(height),
+      width: parseInt(width),
       videoId: 'xWggTb45brM',
     });
   }
