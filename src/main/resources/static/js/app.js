@@ -17,8 +17,8 @@ function onLoad() {
   lightMode();
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
-    if (sessionStorage.colorMode && colorMode != "light") {
-        toggleColor();
+    if (typeof(Storage) !== "undefined" && sessionStorage.colorMode && sessionStorage.colorMode != "light") {
+      toggleColor();
     } else {
       toggleColor();
     }
@@ -122,7 +122,10 @@ function toggleColor() {
     colorToggle.removeClass("btn-outline-light").addClass("btn-dark");
     colorToggle.html("Enable Dark Mode");
   }
-  sessionStorage = colorToggle.val();
+
+  if (typeof(Storage) !== "undefined") {
+    sessionStorage.colorMode = colorToggle.val();
+  }
 }
 
 $("#color_toggle").on('click', toggleColor)
