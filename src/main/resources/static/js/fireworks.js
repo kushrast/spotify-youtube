@@ -1,8 +1,8 @@
-var self_taps = 10;
+var self_taps = 5;
 
 var canvasEl = document.querySelector('.fireworks');
 var ctx = canvasEl.getContext('2d');
-var numberOfParticules = 30;
+var numberOfParticules = 5;
 var pointerX = 0;
 var pointerY = 0;
 var tap = ('ontouchstart' in window || navigator.msMaxTouchPoints) ? 'touchstart' : 'mousedown';
@@ -116,8 +116,8 @@ var centerY = window.innerHeight / 2;
 
 function autoClick() {
   animateParticules(
-    anime.random(centerX-50, centerX+50), 
-    anime.random(centerY-50, centerY+50)
+    anime.random(centerX-500, centerX+500), 
+    anime.random(centerY-500, centerY+500)
   );
 
   if (self_taps > 0) {
@@ -126,6 +126,8 @@ function autoClick() {
   } else {
     $("#fireworks").remove();
     $("#content").show();
+    $("body").css("background","");
+    $("body").css("background-color","black");
   }
 }
 

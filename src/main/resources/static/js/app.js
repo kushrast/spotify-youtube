@@ -10,8 +10,6 @@ function onLoad() {
   if (refresh_token != null && refresh_token != "") {
     $("#content").hide();
     autoClick();
-    $("body").css("background","");
-    $("body").css("background-color","black");
     $( "#not_authenticated" ).remove();
     $( "#authenticated" ).show();
     $("#loading_circle").hide();
