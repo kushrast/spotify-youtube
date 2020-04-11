@@ -5,3 +5,7 @@ body {
 	background: rgb(255,221,225);
 	background: linear-gradient(90deg, rgba(255,221,225,1) 0%, rgba(238,156,167,1) 100%);
 }
+
+#youTubePlayer {
+	padding-top: 20px;
+}
