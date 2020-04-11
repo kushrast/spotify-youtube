@@ -109,9 +109,9 @@ function onYouTubePlayerAPIReady() {
     if (width < 200 || height < 200) {
       width = 200;
       height = 200;
-    } else if (width > 1920 || height > 1080) {
-      width = 1920;
-      height = 1080;
+    } else if (width > 1280 || height > 720) {
+      width = 1280;
+      height = 720;
     }
 
     player = new YT.Player('youTubePlayer', {
@@ -170,9 +170,9 @@ $( window ).resize(function() {
     if (width < 200 || height < 200) {
       width = 200;
       height = 200;
-    } else if (width > 1920 || height > 1080) {
-      width = 1920;
-      height = 1080;
+    } else if (width > 1280 || height > 720) {
+      width = 1280;
+      height = 720;
     }
 
     console.log(height);
