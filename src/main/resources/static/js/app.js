@@ -37,7 +37,7 @@ function onLoad() {
 }
 
 function sync() {
-  var spinner = new Spinner(opts).spin($("#loading_circle").get());
+  var spinner = new Spin.Spinner(opts).spin($("#loading_circle").get());
   var spotifyUri = playbackData != null ? playbackData["spotifyUri"] : "";
   var oldYouTubeId = playbackData != null ? playbackData["youTubeId"] : "";
   console.log(oldYouTubeId);
