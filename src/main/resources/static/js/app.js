@@ -12,10 +12,12 @@ function onLoad() {
     $("body").css("background-color","black");
     $( "#not_authenticated" ).remove();
     $( "#authenticated" ).show();
+      $("#loading_circle").hide();
   }
 }
 
 function sync() {
+  $("#loading_circle").show();
   var spotifyUri = playbackData != null ? playbackData["spotifyUri"] : "";
   var oldYouTubeId = playbackData != null ? playbackData["youTubeId"] : "";
   console.log(oldYouTubeId);
@@ -43,6 +45,7 @@ function sync() {
       updateYouTubePlayer(sameVideo, youTubeId, progress, data["currentlyPlaying"]);
   }
 });
+  $("#loading_circle").hide();
 }
 
 function updateYouTubePlayer(isSameVideo, videoId, progress, currentlyPlaying) {
