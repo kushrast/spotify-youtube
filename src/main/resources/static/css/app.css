@@ -2,8 +2,7 @@ html { height: 100%; }
 body { height: 100%; display: flex; }
 body > div { flex: 1; }
 body {
-	background: rgb(255,221,225);
-	background: linear-gradient(90deg, rgba(255,221,225,1) 0%, rgba(238,156,167,1) 100%);
+
 }
 
 #youTubePlayer {
@@ -11,6 +10,9 @@ body {
 }
 
 #authenticated {
-	padding-right: 15px
+	padding-right: 60px
+}
+
+#sync {
 	color: #ee9ca7;
 }
