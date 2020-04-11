@@ -17,9 +17,10 @@ function onLoad() {
   lightMode();
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
-    if (typeof(Storage) !== "undefined" && sessionStorage.colorMode != "light") {
-      console.log(sessionStorage.colorMode);
-      toggleColor();
+    if (typeof(Storage) !== "undefined" && sessionStorage.colorMode) {
+      if (sessionStorage.colorMode  != "light") {
+        toggleColor();
+      }
     } else {
       toggleColor();
     }
@@ -101,7 +102,7 @@ function onYouTubePlayerAPIReady() {
       height = y*.85;
       width = height*16/9
     } else {
-      width = x*.95;
+      width = x*.98
       height = width*9/16;
     }
 
@@ -147,6 +148,29 @@ function toggleColor() {
     colorToggle.html("Enable Dark Mode");
   }
 }
+
+$( window ).resize(function() {
+    var width;
+    var height;
+
+    var y = window.outerHeight;
+    var x = window.outerWidth;
+
+    if (x/y > 1.59) {
+      height = y*.85;
+      width = height*16/9
+    } else {
+      width = x*.98
+      height = width*9/16;
+    }
+
+    if (width < 200 || height < 200) {
+      width = 200;
+      height = 200;
+    }
+
+    player.resize(width, height);
+});
 
 $("#color_toggle").on('click', toggleColor)
 
