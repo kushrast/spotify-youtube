@@ -45,7 +45,7 @@ function sync() {
       updateYouTubePlayer(sameVideo, youTubeId, progress, data["currentlyPlaying"]);
   }
 });
-  $("#loading_circle").hide();
+  setTimeout(function(){$("#loading_circle").hide()}, 1500);
 }
 
 function updateYouTubePlayer(isSameVideo, videoId, progress, currentlyPlaying) {
