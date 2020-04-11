@@ -71,9 +71,12 @@
       player.loadVideoById(videoId, progress);
     }
 
+    console.log("currentlyPlaying: " + currentlyPlaying);
     if (currentlyPlaying) {
+          console.log("Play");
       player.playVideo();
     } else {
+          console.log("Pause");
       player.pauseVideo();
     }
   }
