@@ -3,11 +3,12 @@ var playbackData = null;
 var player = null;
 
 function onLoad() {
-  $( "#sync" ).hide();
+  $("#authenticated").hide();
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
+    $(body).css("background-color","black");
     $( "#not_authenticated" ).remove();
-    $( "#sync" ).show();
+    $( "#authenticated" ).show();
   }
 }
 
@@ -21,24 +22,24 @@ function sync() {
       "spotifyUri": spotifyUri
     }
   })
-    .done(function( data ) {
-      console.log( "data:", data);
-      playbackData = data;
+  .done(function( data ) {
+    console.log( "data:", data);
+    playbackData = data;
 
-      $("#youtubePlayer").remove();
+    $("#youtubePlayer").remove();
 
-      var progress = data["progressSeconds"];
-      var youTubeId = data["youTubeId"] != null ? data["youTubeId"] : oldYouTubeId;
-      var sameVideo = youTubeId == oldYouTubeId;
+    var progress = data["progressSeconds"];
+    var youTubeId = data["youTubeId"] != null ? data["youTubeId"] : oldYouTubeId;
+    var sameVideo = youTubeId == oldYouTubeId;
 
-      playbackData["youTubeId"] = youTubeId;
+    playbackData["youTubeId"] = youTubeId;
 
-      if (youTubeId == "") {
-        alert("encountered error while getting latest state from server.");
-      } else {
-        updateYouTubePlayer(sameVideo, youTubeId, progress, data["currentlyPlaying"]);
-    }
-  });
+    if (youTubeId == "") {
+      alert("encountered error while getting latest state from server.");
+    } else {
+      updateYouTubePlayer(sameVideo, youTubeId, progress, data["currentlyPlaying"]);
+  }
+});
 }
 
 function updateYouTubePlayer(isSameVideo, videoId, progress, currentlyPlaying) {
