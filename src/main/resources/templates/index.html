@@ -64,11 +64,17 @@
     });
   }
 
-  function updateYouTubePlayer(isSameVideo, videoId, progress, autoplay) {
-    if (!isSameVideo) {
+  function updateYouTubePlayer(isSameVideo, videoId, progress, currentlyPlaying) {
+    if (isSameVideo) {
       player.seekTo(progress, true);
     } else {
-      player.loadVideoById(videoId, progress)
+      player.loadVideoById(videoId, progress);
+    }
+
+    if (currentlyPlaying) {
+      player.playVideo();
+    } else {
+      player.pauseVideo();
     }
   }
 
@@ -78,6 +84,7 @@
       width: '1280',
       videoId: 'xWggTb45brM',
     });
+    player.mute();
   }
 
   function toggleSync(e) {
