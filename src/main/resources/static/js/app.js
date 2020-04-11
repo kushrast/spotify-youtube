@@ -91,17 +91,23 @@ function onYouTubePlayerAPIReady() {
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
 
-    var width = 356; //min width we will display
-    var height = 200;
+    var width;
+    var height;
 
-    var y = window.outerHeight * .85;
-    var x = y*16/9;
-    
-    console.log("x: " + x + " y:" + y);
+    var y = window.outerHeight;
+    var x = window.outerWidth;
 
-    if (x > width) {
-      width = parseInt(x);
-      height = parseInt(y);
+    if (x/y > 1.59) {
+      height = y*.85;
+      width = height*16/9
+    } else {
+      width = x*.95;
+      height = width*9/16;
+    }
+
+    if (width < 200 || height < 200) {
+      width = 200;
+      height = 200;
     }
 
     player = new YT.Player('youTubePlayer', {
