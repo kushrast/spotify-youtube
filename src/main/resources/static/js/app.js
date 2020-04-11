@@ -96,6 +96,8 @@ function onYouTubePlayerAPIReady() {
 
     var y = window.outerHeight * .85;
     var x = y*16/9;
+    
+    console.log("x: " + x + " y:" + y);
 
     if (x > width) {
       width = parseInt(x);
