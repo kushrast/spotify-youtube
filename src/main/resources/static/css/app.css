@@ -22,5 +22,6 @@ body {
 }
 
 #color_toggle {
-	margin: 5px;
+	margin-left: 5px;
+	margin-bottom: 5px
 }
