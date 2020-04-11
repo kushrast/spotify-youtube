@@ -3,11 +3,12 @@ var playbackData = null;
 var player = null;
 
 function onLoad() {
-      $("body").css("background","rgb(255,221,225)");
-      $("body").css("background","linear-gradient(90deg, rgba(255,221,225,1) 0%, rgba(238,156,167,1) 100%)");
+    $("body").css("background","rgb(255,221,225)");
+    $("body").css("background","linear-gradient(90deg, rgba(255,221,225,1) 0%, rgba(238,156,167,1) 100%)");
   $("#authenticated").hide();
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
+    $("body").css("background","");
     $("body").css("background-color","black");
     $( "#not_authenticated" ).remove();
     $( "#authenticated" ).show();
