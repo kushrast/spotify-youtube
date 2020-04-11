@@ -9,3 +9,8 @@ body {
 #youTubePlayer {
 	padding-bottom: 20px;
 }
+
+#authenticated {
+	padding-right: 15px
+	color: #ee9ca7;
+}
