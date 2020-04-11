@@ -15,6 +15,8 @@ function onLoad() {
     $( "#not_authenticated" ).remove();
     $( "#authenticated" ).show();
     $("#loading_circle").hide();
+  } else {
+    $("#fireworks").remove();
   }
 }
 
