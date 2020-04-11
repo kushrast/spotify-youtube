@@ -116,12 +116,12 @@ function toggleColor() {
   if (colorToggle.val() == "dark") {
     colorToggle.val("light");
     darkMode();
-    colorToggle.removeClass("btn-outline-light").addClass("btn-light");
+    colorToggle.removeClass("btn-outline-light").addClass("btn-outline-dark");
     colorToggle.html("Enable Light Mode");
   } else {
     colorToggle.val("dark");
     lightMode();
-    colorToggle.removeClass("btn-light").addClass("btn-outline-light");
+    colorToggle.removeClass("btn-outline-dark").addClass("btn-outline-light");
     colorToggle.html("Enable Dark Mode");
   }
 
