@@ -169,7 +169,9 @@ $( window ).resize(function() {
       height = 200;
     }
 
-    player.resize(width, height);
+    console.log(height);
+
+    player.setSize(width, height);
 });
 
 $("#color_toggle").on('click', toggleColor)
