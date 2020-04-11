@@ -81,6 +81,7 @@ function toggleSync(e) {
     syncRequest = setInterval(sync, 15000);
   }
 }
+
 $("#sync").on("click", toggleSync);
 
 onLoad();
