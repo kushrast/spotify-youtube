@@ -93,7 +93,7 @@ function onYouTubePlayerAPIReady() {
   }
 }
 
-function toggleSync(e) {
+function toggleSync() {
   if (syncRequest != null) {
     $("#sync").html("Start syncing");
     clearInterval(syncRequest);
@@ -104,6 +104,20 @@ function toggleSync(e) {
     syncRequest = setInterval(sync, 15000);
   }
 }
+
+function toggleColor() {
+  if ($("#color_toggle").val() == "dark") {
+    darkMode();
+    $("#color_toggle").removeClass("btn-dark").addClass("btn-light");
+    $("#color_toggle").html("Switch to Light Mode");
+  } else {
+    lightMode();
+    $("#color_toggle").removeClass("btn-light").addClass("btn-dark");
+    $("#color_toggle").html("Switch to Dark Mode");
+  }
+}
+
+$("#color_toggle").on('click', toggleColor)
 
 $("#sync").on("click", toggleSync);
 
