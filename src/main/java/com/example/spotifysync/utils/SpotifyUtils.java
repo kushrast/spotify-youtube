@@ -87,8 +87,6 @@ public class SpotifyUtils {
 
       final int expiresIn = responseJson.get("expires_in").getAsInt();
 
-      System.out.println("Access Token: " + responseJson.get("access_token"));
-
       // Set cookies with values
       setCookie("access_token", responseJson.get("access_token")
           .getAsString(), expiresIn, httpServletResponse);
@@ -139,9 +137,6 @@ public class SpotifyUtils {
 
       final int expiresIn = responseJson.get("expires_in").getAsInt();
 
-      System.out.println("Access Token: " + responseJson.get("access_token"));
-      System.out.println("Refresh Token: " + responseJson.get("refresh_token"));
-
       // Set cookies with values
       setCookie("access_token", responseJson.get("access_token")
           .getAsString(), expiresIn, httpServletResponse);
@@ -172,7 +167,6 @@ public class SpotifyUtils {
         return null;
       } else {
         final String responseBody = spotifyCurrentPlayingResponse.body().string();
-        System.out.println(responseBody);
         // Get response body
         JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
 

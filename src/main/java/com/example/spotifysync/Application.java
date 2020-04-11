@@ -66,8 +66,6 @@ public class Application {
       final HttpServletResponse httpServletResponse
   ) {
 
-    System.out.println(spotifyUriPlayingOnFrontend);
-
     Map<String, String> response = new HashMap<>();
     //Check Access Token
     accessToken = spotifyUtils.verifyOrRefreshSpotifyAccessToken(accessToken, refreshToken, httpServletResponse, model);
@@ -93,7 +91,6 @@ public class Application {
     if (!currentPlaying.getSpotifyUri().equals(spotifyUriPlayingOnFrontend)) {
       youTubeId = youTubeUtils.getYouTubeLinkFromSpotifyTrack(currentPlaying);
     } else {
-      System.out.println("Skipping YouTube API call");
       youTubeId = null;
     }
 

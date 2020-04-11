@@ -20,6 +20,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>net.ricecode</groupId>
+			<artifactId>string-similarity</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>28.2-jre</version>

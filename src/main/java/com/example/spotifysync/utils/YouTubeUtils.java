@@ -6,6 +6,11 @@ import com.google.gson.JsonObject;
 
 import com.example.spotifysync.schema.SpotifyCurrentPlaying;
 
+import net.ricecode.similarity.JaroWinklerStrategy;
+import net.ricecode.similarity.SimilarityStrategy;
+import net.ricecode.similarity.StringSimilarityService;
+import net.ricecode.similarity.StringSimilarityServiceImpl;
+
 import java.io.IOException;
 
 import okhttp3.OkHttpClient;
@@ -20,6 +25,7 @@ public class YouTubeUtils {
   }
 
   private final OkHttpClient httpClient = new OkHttpClient();
+  private final StringSimilarityService stringSimilarityService = new StringSimilarityServiceImpl(new JaroWinklerStrategy());
 
   public String getYouTubeLinkFromSpotifyTrack(SpotifyCurrentPlaying currentPlaying) {
     final String youtubeApiUrl =
@@ -66,17 +72,11 @@ public class YouTubeUtils {
         final String videoTitle = snippet.get("title").getAsString();
         final String channelTitle = snippet.get("channelTitle").getAsString();
 
-        int similarity = currentPlaying.compareSpotifyTrackToYouTubeVideo(videoTitle, channelTitle);
-
-        //        System.out.println("Result: " + i + ", " + videoResult.get("id")
-        //            .getAsJsonObject()
-        //            .get("videoId")
-        //            .getAsString());
+        int similarity = currentPlaying.compareSpotifyTrackToYouTubeVideo(stringSimilarityService, videoTitle, channelTitle);
 
         if (similarity > bestFit) {
           bestFit = similarity;
           bestYouTubeLink = videoResult.get("id").getAsJsonObject().get("videoId").getAsString();
-          //          System.out.println(similarity + " " + bestFit + " " + bestYouTubeLink);
         }
       }
     }

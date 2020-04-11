@@ -1,5 +1,7 @@
 package com.example.spotifysync.schema;
 
+import net.ricecode.similarity.StringSimilarityService;
+
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -70,8 +72,31 @@ public class SpotifyCurrentPlaying {
     return searchString.toString();
   }
 
-  public int compareSpotifyTrackToYouTubeVideo(String youTubeTitle, String youTubeAuthor) {
-    return 100;
+  public int compareSpotifyTrackToYouTubeVideo(final StringSimilarityService stringSimilarityService, String youTubeTitle, String youTubeAuthor) {
+    youTubeTitle = youTubeTitle.toLowerCase();
+    int score = 0;
+
+    if (youTubeTitle.contains("official")) {
+      score += 500;
+    }
+
+    if (youTubeTitle.contains("lyric") || youTubeTitle.contains("audio")) {
+      score -= 250;
+    }
+
+    if (youTubeTitle.contains("video")) {
+      score += 500;
+    }
+
+    double artistSimilarity = 0.0;
+    for (String artist: artists) {
+      artistSimilarity = Math.max(artistSimilarity, stringSimilarityService.score(artist, youTubeAuthor));
+      artistSimilarity = Math.max(artistSimilarity, stringSimilarityService.score(artist+"VEVO", youTubeAuthor));
+    }
+
+    score += 500*artistSimilarity;
+
+    return score;
   }
 
   @Override public String toString() {
