@@ -250,6 +250,6 @@ public class SpotifyUtils {
   }
 
   private static String getServerUrl() {
-    return "https://spotify-youtube.herokuapp.com";
+    return "https://sync-kr.herokuapp.com";
   }
 }
