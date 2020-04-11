@@ -7,18 +7,18 @@ public class FrontendPlayResponse {
   private String spotifyUri;
   private String youTubeId;
   private int progressSeconds;
-  private boolean currentPlaying;
+  private boolean currentlyPlaying;
   private String error;
 
   public FrontendPlayResponse() {
   }
 
   public FrontendPlayResponse(String spotifyUri, String youTubeId, int progressSeconds,
-      boolean currentPlaying) {
+      boolean currentlyPlaying) {
     this.spotifyUri = spotifyUri;
     this.youTubeId = youTubeId;
     this.progressSeconds = progressSeconds;
-    this.currentPlaying = currentPlaying;
+    this.currentlyPlaying = currentlyPlaying;
     this.error = "";
   }
 
@@ -38,8 +38,8 @@ public class FrontendPlayResponse {
     return progressSeconds;
   }
 
-  public boolean getCurrentPlaying() {
-    return currentPlaying;
+  public boolean getCurrentlyPlaying() {
+    return currentlyPlaying;
   }
 
   public String getError() {
