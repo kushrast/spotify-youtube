@@ -1,107 +1,31 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
-  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  	<script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
-    <script src="https://www.youtube.com/player_api"></script>
+    <link th:href="@{/css/app.css}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
     <title>Spotify Youtube Sync</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   </head>
   <body>
-  <a href="/authenticate_spotify" id="authenticate">Authenticate Me!</a>
+  <div id="not_authenticated">
+    <a type="button" class="btn btn-outline-light" href="/authenticate_spotify" id="authenticate">Authenticate with Spotify</a>
+  </div>
   <button id="sync">Start syncing</button>
   </body>
   <div id="youTubePlayer"></div>
 
   <script th:inline="javascript">
-    var syncRequest = null;
-    var playbackData = null;
-    var player = null;
-
-    function onLoad() {
-      $( "#sync" ).hide();
+    function checkErrors() {
       var error = [[${error}]];
       if (error != "" && error != null) {
         console.log("encountered error: " + error);
         alert(error);
       };
-
-      var refresh_token = Cookies.get("refresh_token");
-      if (refresh_token != null && refresh_token != "") {
-        $( "#authenticate" ).remove();
-        $( "#sync" ).show();
-      }
     }
-
-    function sync() {
-      var spotifyUri = playbackData != null ? playbackData["spotifyUri"] : "";
-      var oldYouTubeId = playbackData != null ? playbackData["youTubeId"] : "";
-      console.log(oldYouTubeId);
-      $.getJSON({
-        url: "/update",
-        data: {
-          "spotifyUri": spotifyUri
-        }
-      })
-        .done(function( data ) {
-          console.log( "data:", data);
-          playbackData = data;
-
-          $("#youtubePlayer").remove();
-
-          var progress = data["progressSeconds"];
-          var youTubeId = data["youTubeId"] != null ? data["youTubeId"] : oldYouTubeId;
-          var sameVideo = youTubeId == oldYouTubeId;
-
-          playbackData["youTubeId"] = youTubeId;
-
-          if (youTubeId == "") {
-            alert("encountered error while getting latest state from server.");
-          } else {
-            updateYouTubePlayer(sameVideo, youTubeId, progress, data["currentlyPlaying"]);
-        }
-      });
-    }
-
-    function updateYouTubePlayer(isSameVideo, videoId, progress, currentlyPlaying) {
-      if (isSameVideo) {
-        player.seekTo(progress, true);
-      } else {
-        player.loadVideoById(videoId, progress);
-      }
-
-      console.log("currentlyPlaying: " + currentlyPlaying);
-      if (currentlyPlaying) {
-            console.log("Play");
-        player.playVideo();
-      } else {
-            console.log("Pause");
-        player.pauseVideo();
-      }
-      player.mute();
-    }
-
-    function onYouTubePlayerAPIReady() {
-      player = new YT.Player('youTubePlayer', {
-        height: '720',
-        width: '1280',
-        videoId: 'xWggTb45brM',
-      });
-    }
-
-    function toggleSync(e) {
-      if (syncRequest != null) {
-        $("#sync").html("Start syncing");
-        clearInterval(syncRequest);
-        syncRequest = null;
-      } else {
-        $("#sync").html("Stop sync");
-        sync();
-        syncRequest = setInterval(sync, 15000);
-      }
-    }
-    $("#sync").on("click", toggleSync);
-
-    onLoad();
+    checkErrors();
   </script>
+  <script th:src="@{/js/app.js}"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+  <script src="https://www.youtube.com/player_api"></script>
 </html>
