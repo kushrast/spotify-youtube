@@ -132,6 +132,9 @@ function toggleSync() {
 
 function toggleColor() {
   var colorToggle = $("#color_toggle");
+  if (typeof(Storage) !== "undefined") {
+    sessionStorage.colorMode = colorToggle.val();
+  }
   if (colorToggle.val() == "dark") {
     colorToggle.val("light");
     darkMode();
@@ -142,10 +145,6 @@ function toggleColor() {
     lightMode();
     colorToggle.removeClass("btn-outline-dark").addClass("btn-outline-light");
     colorToggle.html("Enable Dark Mode");
-  }
-
-  if (typeof(Storage) !== "undefined") {
-    sessionStorage.colorMode = colorToggle.val();
   }
 }
 
