@@ -7,12 +7,21 @@
     <title>Spotify Youtube Sync</title>
   </head>
   <body>
-  <div id="not_authenticated">
-    <a type="button" class="btn btn-outline-light" href="/authenticate_spotify" id="authenticate">Authenticate with Spotify</a>
-  </div>
-  <button id="sync">Start syncing</button>
+    <div class="container">
+      <div class="row justify-content-md-center align-items-center">
+        <div id="not_authenticated col-md-6">
+          <h1 class="display-1">Welcome to Spotify-YouTube Sync</h1>
+          <p class="lead">
+            Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus.
+          </p>
+          <a type="button" class="btn btn-outline-light btn-lg" href="/authenticate_spotify" id="authenticate">Authenticate with Spotify</a>
+        </div>
+
+        <button id="sync">Start syncing</button>
+        <div id="youTubePlayer"></div>
+      </div>
+    </div>
   </body>
-  <div id="youTubePlayer"></div>
 
   <script th:inline="javascript">
     function checkErrors() {
