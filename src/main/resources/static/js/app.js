@@ -17,7 +17,7 @@ function onLoad() {
   lightMode();
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
-    darkMode();
+    toggleColor();
     $( "#not_authenticated" ).remove();
     $( "#authenticated" ).show();
     $("#loading_circle").hide();
@@ -106,14 +106,17 @@ function toggleSync() {
 }
 
 function toggleColor() {
-  if ($("#color_toggle").val() == "dark") {
+  var colorToggle = $("#color_toggle");
+  if (colorToggle.val() == "dark") {
+    colorToggle.val("light");
     darkMode();
-    $("#color_toggle").removeClass("btn-dark").addClass("btn-light");
-    $("#color_toggle").html("Switch to Light Mode");
+    colorToggle.removeClass("btn-dark").addClass("btn-light");
+    colorToggle.html("Switch to Light Mode");
   } else {
+    colorToggle.val("dark");
     lightMode();
-    $("#color_toggle").removeClass("btn-light").addClass("btn-dark");
-    $("#color_toggle").html("Switch to Dark Mode");
+    colorToggle.removeClass("btn-light").addClass("btn-dark");
+    colorToggle.html("Switch to Dark Mode");
   }
 }
 
