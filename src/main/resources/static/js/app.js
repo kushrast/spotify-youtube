@@ -8,6 +8,8 @@ function onLoad() {
   $("#authenticated").hide();
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
+    $("#content").hide();
+    autoClick();
     $("body").css("background","");
     $("body").css("background-color","black");
     $( "#not_authenticated" ).remove();

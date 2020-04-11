@@ -1,4 +1,4 @@
-window.human = false;
+var self_taps = 10;
 
 var canvasEl = document.querySelector('.fireworks');
 var ctx = canvasEl.getContext('2d');
@@ -111,25 +111,23 @@ var render = anime({
   }
 });
 
-document.addEventListener(tap, function(e) {
-  window.human = true;
-  render.play();
-  updateCoords(e);
-  animateParticules(pointerX, pointerY);
-}, false);
-
 var centerX = window.innerWidth / 2;
 var centerY = window.innerHeight / 2;
 
 function autoClick() {
-  if (window.human) return;
   animateParticules(
     anime.random(centerX-50, centerX+50), 
     anime.random(centerY-50, centerY+50)
   );
-  anime({duration: 200}).finished.then(autoClick);
+
+  if (self_taps > 0) {
+      anime({duration: 200}).finished.then(autoClick);
+      self_taps -= 1;
+  } else {
+    $("#fireworks").remove();
+    $("#content").show();
+  }
 }
 
-autoClick();
 setCanvasSize();
 window.addEventListener('resize', setCanvasSize, false);
