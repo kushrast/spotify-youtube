@@ -6,7 +6,7 @@ function onLoad() {
   $("#authenticated").hide();
   var refresh_token = Cookies.get("refresh_token");
   if (refresh_token != null && refresh_token != "") {
-    $(body).css("background-color","black");
+    $('body').css("background-color","black");
     $( "#not_authenticated" ).remove();
     $( "#authenticated" ).show();
   }
