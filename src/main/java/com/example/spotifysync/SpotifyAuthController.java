@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 public class SpotifyAuthController {
   //TODO: Use Dagger
   private static SpotifyUtils spotifyUtils = new SpotifyUtils();
+
   /**
    * Redirects a user to Spotify's web authentication page in order to get API access tokens
    */
@@ -36,11 +37,7 @@ public class SpotifyAuthController {
   public void authenticateWithSpotify(HttpServletResponse httpServletResponse,
       final @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken) {
     if (refreshToken.equals("")) {
-      // Generate a random state string and save in a cookie for verification
-      final String state = UUID.randomUUID().toString();
-      setServerCookie("state", state, httpServletResponse);
-
-      httpServletResponse.setHeader("Location", buildSpotifyAuthorizationLink(state));
+      httpServletResponse.setHeader("Location", buildSpotifyAuthorizationLink());
       httpServletResponse.setStatus(302);
     } else {
       try {
@@ -61,19 +58,11 @@ public class SpotifyAuthController {
   public ModelAndView spotifyAuthCallback(
       final @CookieValue(value = "state", defaultValue = "") String storedState,
       final @RequestParam(name = "code", required = false, defaultValue = "") String code,
-      final @RequestParam(name = "state", required = true, defaultValue = "") String state,
       final @RequestParam(name = "error", required = false, defaultValue = "") String error,
       final @NonNull Model model,
       final HttpServletResponse httpServletResponse
   ) {
-
-    //Removing state cookie
-    clearCookie("state", httpServletResponse);
-
-    if (!storedState.equals(state)) {
-      System.out.println("Stored state does not match state returned from Spotify");
-      addStandardSpotifyAuthErrorToModel(model);
-    } else if (!code.equals("")) {
+    if (!code.equals("")) {
       if (spotifyUtils.fetchAccessTokenFromAuthCode(code, model, httpServletResponse)) {
         return new ModelAndView("index");
       }

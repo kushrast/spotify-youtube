@@ -214,19 +214,18 @@ public class SpotifyUtils {
   /**
    * Assembles Spotify Authorization URL to send users to in order to get credentials
    */
-  public static String buildSpotifyAuthorizationLink(final String state) {
+  public static String buildSpotifyAuthorizationLink() {
     // Request authorization for Spotify by redirecting user to spotify
     final String responseType = "code";
     final String scope = "user-read-currently-playing";
     final String clientId = getSpotifyClientId();
     final String redirectUri = getSpotifyRedirectUrl();
     return String.format(
-        "https://accounts.spotify.com/authorize?response_type=%s&client_id=%s&scope=%s&redirect_uri=%s&state=%s",
+        "https://accounts.spotify.com/authorize?response_type=%s&client_id=%s&scope=%s&redirect_uri=%s",
         responseType,
         clientId,
         scope,
-        redirectUri,
-        state
+        redirectUri
     );
   }
 
