@@ -1,0 +1,24 @@
+html { height: 100%; }
+body { height: 100%; display: flex; }
+body > div { flex: 1; }
+body {
+
+}
+
+#youTubePlayer {
+	padding-top: 30px;
+	padding-bottom: 20px;
+}
+
+#sync {
+	margin-right: 10px;
+}
+
+#loading_circle {
+	margin-right: 3px;
+}
+
+#color_toggle {
+	margin-left: 10px;
+	margin-bottom: 10px
+}
